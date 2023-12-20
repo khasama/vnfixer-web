@@ -3,85 +3,125 @@ import React, { useEffect, useState } from "react";
 import { TypeAnimation } from "react-type-animation";
 import TextField from "@mui/material/TextField";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useDispatch, useSelector } from "react-redux";
-import { districtsSelector, provincesSelector } from "../redux/selectors";
-import { getDistricts, getProvinces } from "../redux/reducers/location";
+import { categoriesSelector, isLoggedInSelector } from "../redux/selectors";
 import { unwrapResult } from "@reduxjs/toolkit";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
+import { getCategories } from "../redux/reducers/category";
+import { cities } from "../constants";
+import vnfixerAPI from "../api/vnfixerApi";
+import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-const devices = [
-  {
-    name: "Xe máy",
-    value: "xemay",
-  },
-  {
-    name: "Thiết bị văn phòng",
-    value: "vanphong",
-  },
-  {
-    name: "Đồ gia dụng",
-    value: "giadung",
-  },
-  {
-    name: "Hệ thống an ninh",
-    value: "anninh",
-  },
-];
-
-const Banner = ({ repo }) => {
-  const provinces = useSelector(provincesSelector);
-  const districts = useSelector(districtsSelector);
+const Banner = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
+  const categories = useSelector(categoriesSelector);
   const [province, setProvince] = useState("");
   const [device, setDevice] = useState("");
-  const [district, setDistrict] = useState("");
-  const router = useRouter();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [isValidEmail, setIsValidEmail] = useState(true);
+  const [phone, setPhone] = useState("");
+  const [date, setDate] = useState(dayjs());
+  const isLoggedIn = useSelector(isLoggedInSelector);
+
   useEffect(() => {
-    const getLocations = () => {
-      dispatch(getProvinces())
+    const getAllCategory = () => {
+      dispatch(getCategories())
         .then(unwrapResult)
         .catch((err) => {
           alert(err.message);
         });
     };
-    getLocations();
+    getAllCategory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleChangeProvince = (event) => {
-    setProvince(event.target.value);
-    dispatch(getDistricts(event.target.value))
-      .then(unwrapResult)
-      .catch((err) => {
-        alert(err.message);
-      });
+  const clearData = () => {
+    setProvince("");
+    setDevice("");
+    setTitle("");
+    setDescription("");
+    setFullName("");
+    setEmail("");
+    setIsValidEmail(true);
+    setPhone("");
+    setDate(dayjs());
   };
 
-  const handleChangeDistrict = (event) => {
-    setDistrict(event.target.value);
+  const handleChangeEmail = (event) => {
+    const { value } = event.target;
+    setEmail(value);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    setIsValidEmail(emailRegex.test(value));
+  };
+
+  const handleChangeProvince = (event) => {
+    setProvince(event.target.value);
+    // dispatch(getDistricts(event.target.value))
+    //   .then(unwrapResult)
+    //   .catch((err) => {
+    //     alert(err.message);
+    //   });
   };
 
   const handleChangeDevice = (event) => {
     setDevice(event.target.value);
+    const titleFiltered = categories?.filter(
+      (item) => item.id === event.target.value
+    );
+    setTitle(titleFiltered[0].name);
   };
 
-  const handleFind = () => {
-    if (province != "" || district != "" || device != "") {
-      router.push({
-        pathname: `/category/${device}`,
-        query: { name: "Someone" },
-      });
+  const handleSubmit = () => {
+    if (isLoggedIn) {
+      if (
+        fullName.length > 0 &&
+        province.length > 0 &&
+        phone.length > 0 &&
+        dayjs(date).format("YYYY-MM-DD").length > 0
+      ) {
+        const data = {
+          description: description,
+          location: province,
+          expectDate: [dayjs(date).format("YYYY-MM-DD")],
+          categoryId: 3,
+          city: province,
+          customerPhone: phone,
+          customerName: fullName,
+          customerEmail: email,
+          title: title,
+        };
+        try {
+          vnfixerAPI.sendRequest(data);
+          clearData();
+        } catch (error) {
+          toast.error("Có lỗi xảy ra, vui lòng thử lại sau!");
+          throw rejectWithValue(error);
+        }
+        toast.success("Yêu cầu của bạn đã được gửi đi");
+      } else {
+        toast.error("Vui lòng nhập đủ thông tin cần thiết!");
+      }
+    } else {
+      toast.error("Vui lòng đăng nhập để gửi yêu cầu!");
+      setTimeout(() => {
+        router.push("/login");
+      }, 1000);
     }
   };
 
-  province && console.log(province, device);
-
   return (
     <div className="min-h-[50vh]">
-      {repo?.map((i, e) => i)}
+      <Toaster position="top-center" />
       <div className="bg-banner z-1 bg-center"></div>
       <div className="w-full  relative flex flex-col items-center justify-center translate-y-24 z-1">
         <motion.div
@@ -130,19 +170,27 @@ const Banner = ({ repo }) => {
                   helperText=""
                   variant="standard"
                   className="w-10/12"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                 />
               </div>
-              <TextField
-                required
-                fullWidth
-                id="standard-basic"
-                label="Số điện thoại"
-                helperText=""
-                variant="standard"
-              />
+
               <div className="flex flex-row justify-between gap-5 w-full">
+                <div className="w-1/2">
+                  <TextField
+                    required
+                    fullWidth
+                    id="standard-basic"
+                    label="Số điện thoại"
+                    helperText=""
+                    variant="standard"
+                    type="number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </div>
                 <FormControl fullWidth variant="standard" className="w-1/2">
-                  <InputLabel id="demo-simple-select-standard-label">
+                  <InputLabel id="demo-simple-select-standard-label" required>
                     Tỉnh/Thành
                   </InputLabel>
                   <Select
@@ -152,38 +200,36 @@ const Banner = ({ repo }) => {
                     onChange={handleChangeProvince}
                     label="province"
                   >
-                    {provinces &&
-                      provinces.map((item, index) => {
+                    {cities &&
+                      cities.map((city, index) => {
                         return (
-                          <MenuItem key={index} value={item.code}>
-                            {item.name}
-                          </MenuItem>
-                        );
-                      })}
-                  </Select>
-                </FormControl>
-                <FormControl variant="standard" className="w-1/2">
-                  <InputLabel id="demo-simple-select-standard-label">
-                    Quận/Huyện
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-standard-label"
-                    id="demo-simple-select-standard"
-                    value={district}
-                    onChange={handleChangeDistrict}
-                    label="district"
-                  >
-                    {districts &&
-                      districts.map((item, index) => {
-                        return (
-                          <MenuItem key={index} value={item.codename}>
-                            {item.name}
+                          <MenuItem key={index} value={city}>
+                            {city}
                           </MenuItem>
                         );
                       })}
                   </Select>
                 </FormControl>
               </div>
+              <FormControl className="w-full" variant="standard">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={["DatePicker"]}>
+                    <DatePicker
+                      label="Ngày dự kiến"
+                      value={date}
+                      onChange={(e) => setDate(e)}
+                      minDate={dayjs()}
+                      sx={{
+                        width: "100%",
+                        padding: 0,
+                        height: "100%",
+                        overflow: "hidden",
+                      }}
+                      slotProps={{ textField: { variant: "standard" } }}
+                    />
+                  </DemoContainer>
+                </LocalizationProvider>
+              </FormControl>
             </div>
             <div className="flex gap-3 flex-col justify-start items-center flex-wrap w-full">
               <div className="flex flex-row justify-between items-center flex-wrap w-full">
@@ -207,43 +253,50 @@ const Banner = ({ repo }) => {
                     labelId="demo-simple-select-standard-label"
                     id="demo-simple-select-standard"
                     value={device}
-                    onChange={handleChangeDevice}
+                    onChange={(e) => handleChangeDevice(e)}
                     label="device"
                   >
-                    {devices &&
-                      devices.map((item, index) => {
+                    {categories &&
+                      categories.map((category, index) => {
                         return (
-                          <MenuItem key={index} value={item.value}>
-                            {item.name}
+                          <MenuItem key={index} value={category.id}>
+                            {category.name}
                           </MenuItem>
                         );
                       })}
                   </Select>
                 </FormControl>
-                {/* <TextField
-                  required
-                  fullWidth
-                  id="standard-basic"
-                  label="Thiết bị"
-                  helperText=""
-                  variant="standard"
-                  className="w-10/12"
-                /> */}
               </div>
 
-              <TextField
-                fullWidth
-                id="standard-basic"
-                label="Mô tả"
-                helperText=""
-                variant="standard"
-              />
+              <div className="flex flex-row justify-between gap-5 w-full">
+                <TextField
+                  className="w-1/2"
+                  fullWidth
+                  id="standard-basic"
+                  value={email}
+                  onChange={handleChangeEmail}
+                  label="Email"
+                  variant="standard"
+                  error={!isValidEmail}
+                  helperText={!isValidEmail && "Định dạng email không đúng"}
+                />
+                <TextField
+                  className="w-1/2"
+                  fullWidth
+                  id="standard-basic"
+                  label="Mô tả"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  helperText=""
+                  variant="standard"
+                />
+              </div>
               <div className="flex flex-row justify-between pt-5">
                 <button
-                  onClick={handleFind}
+                  onClick={handleSubmit}
                   className="bg-[#FFD333] hover:bg-[#ac9132] text-black font-bold py-3 px-10 rounded"
                 >
-                  Tìm kiếm
+                  Yêu cầu
                 </button>
                 {/* <LoadingButton className="py-3 px-10" loading hidden variant="outlined">
                   Submit
@@ -258,23 +311,3 @@ const Banner = ({ repo }) => {
 };
 
 export default Banner;
-
-export async function getStaticProps() {
-  const res = await fetch("https://provinces.open-api.vn/api/p/");
-  const repo = await res.json();
-  return { props: { repo } };
-}
-
-// export async function getProvinces() {
-//   const res = await fetch("https://provinces.open-api.vn/api/p/", {
-//     cache: "force-cache",
-//   });
-//   const repo = await res.json();
-//   return { repo };
-// }
-
-// export default async function Banner() {
-//   const province = await getProvinces();
-//   console.log(province);
-//   return <h1>oke</h1>;
-// }

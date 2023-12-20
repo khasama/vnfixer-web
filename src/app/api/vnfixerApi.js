@@ -7,9 +7,19 @@ const vnfixerAPI = {
     return provinces.get();
   },
   getAllDistrict: (province) => {
-    console.log(province);
     const url = `${province}?depth=2`;
     return provinces.get(url);
+  },
+  // categories
+  getCategories: () => {
+    const url = `/categories`;
+    return instance.get(url);
+  },
+  //request
+  sendRequest: (params) => {
+    console.log(params);
+    const url = `/requests`;
+    return instance.post(url, { ...params });
   },
   //   getProvinces: (id, name, idUser) => {
   //     const query = {
