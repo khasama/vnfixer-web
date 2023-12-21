@@ -16,7 +16,7 @@ export function middleware(request) {
   // const decoded = jwtDecode(token);
   // console.log(decoded.role);
 
-  if (request.url.includes("/agency") && role !== "guest") {
+  if (request.url.includes("/manage") && role !== "guest") {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);

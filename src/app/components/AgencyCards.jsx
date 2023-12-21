@@ -1,8 +1,13 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CardAgency from "./CardAgency";
 import { motion, useInView } from "framer-motion";
 import Title from "./Title";
+import { useSelector } from "react-redux";
+import { isLoggedInSelector } from "../redux/selectors";
+import vnfixerAPI from "../api/vnfixerApi";
+import Image from "next/image";
+import spinner from "../../../public/images/Spin-1s-200px.svg";
 
 const cardsData = [
   {
@@ -44,6 +49,9 @@ const cardsData = [
 ];
 
 const AgencyCards = () => {
+  const isLoggedIn = useSelector(isLoggedInSelector);
+  const [agencies, setAgencies] = useState();
+  const [login, setLogin] = useState([]);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
 
@@ -52,33 +60,62 @@ const AgencyCards = () => {
     animate: { y: 0, opacity: 1 },
   };
 
+  useEffect(() => {
+    setLogin(isLoggedIn);
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    const getAgencies = async () => {
+      try {
+        const response = await vnfixerAPI.getAgencies(4, 1);
+        console.log(response.data.data);
+        if (response.status == 200) {
+          setAgencies(response.data.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getAgencies();
+  }, []);
+
   return (
     <>
-      <div className="w-full">
-        <Title title="Xung quanh bạn"></Title>
-      </div>
-      <ul ref={ref} className="grid md:grid-cols-2 gap-y-5 gap-x-2 m-10">
-        {cardsData.map((project, index) => (
-          <motion.li
-            className="rounded-md shadow-lg py-2 hover:shadow-md w-full lg:w-5/6 mx-auto"
-            key={index}
-            variants={cardVariants}
-            initial="initial"
-            animate={isInView ? "animate" : "initial"}
-            transition={{ duration: 0.3, delay: index * 0.2 }}
-          >
-            <CardAgency
-              key={project.id}
-              title={project.title}
-              description={project.description}
-              city={project.city}
-              star={project.star}
-              imgUrl={project.image}
-              gitUrl={project.gitUrl}
-            />
-          </motion.li>
-        ))}
-      </ul>
+      {login && (
+        <>
+          <div className="w-full">
+            <Title title="Xung quanh bạn"></Title>
+          </div>
+          <ul ref={ref} className="grid md:grid-cols-2 gap-y-5 gap-x-2 m-10">
+            {agencies && agencies.entries ? (
+              agencies?.entries?.map((agency, index) => (
+                <motion.li
+                  className="rounded-md shadow-lg py-2 hover:shadow-md w-full lg:w-5/6 mx-auto"
+                  key={index}
+                  variants={cardVariants}
+                  initial="initial"
+                  animate={isInView ? "animate" : "initial"}
+                  transition={{ duration: 0.3, delay: index * 0.2 }}
+                >
+                  <CardAgency
+                    title={agency.name}
+                    branches={agency.branches.length}
+                    description={agency.description}
+                    city={agency.category.name}
+                    star={5}
+                    imgUrl={agency.logo}
+                    id={agency.id}
+                  />
+                </motion.li>
+              ))
+            ) : (
+              <div className="w-full flex justify-center items-center">
+                <Image priority src={spinner} alt="Follow us on Twitter" />
+              </div>
+            )}
+          </ul>
+        </>
+      )}
     </>
   );
 };

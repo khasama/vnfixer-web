@@ -1,16 +1,24 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FaLocationDot } from "react-icons/fa6";
+import { FaListUl, FaLocationDot } from "react-icons/fa6";
 import TippyWrap from "./Tippy";
 
-const CardAgency = ({ imgUrl, title, description, gitUrl, city, star }) => {
+const CardAgency = ({
+  imgUrl,
+  title,
+  description,
+  id,
+  city,
+  star,
+  branches,
+}) => {
   const STAR_NUMBER = 5;
   return (
-    <Link className="flex flex-row" href={`/service/${gitUrl}`}>
+    <Link className="flex flex-row" href={`/agency/${id}`}>
       <Image
         className="w-2/5 h-auto m-auto pl-2"
-        src={imgUrl}
+        src={imgUrl ? imgUrl : require("../../../public/images/logo.png")}
         alt={title}
         width={0}
         height={0}
@@ -42,7 +50,12 @@ const CardAgency = ({ imgUrl, title, description, gitUrl, city, star }) => {
         </div>
         <span className="text-xs text-[#73777a]">({star} đánh giá)</span>
         <div className="flex flex-row gap-2 items-center text-xs">
-          <FaLocationDot className="text-[#4694EF]" /> {city}
+          <FaListUl className="text-[#4694EF]" />
+          {city}
+        </div>
+        <div className="flex flex-row gap-2 items-center text-xs">
+          <FaLocationDot className="text-[#4694EF]" />
+          Có {branches} chi nhánh
         </div>
       </div>
     </Link>

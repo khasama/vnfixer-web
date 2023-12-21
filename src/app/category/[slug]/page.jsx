@@ -1,10 +1,7 @@
 "use client";
-import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import React from "react";
 
 const Category = ({ params }) => {
-  const router = useRouter();
-
   console.log(params.slug);
 
   return (
