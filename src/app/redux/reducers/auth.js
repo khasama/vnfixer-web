@@ -37,7 +37,7 @@ const authSlice = createSlice({
         state.currentUser = action.payload;
         Cookies.set("INFO", JSON.stringify(state.currentUser));
       })
-      .addCase(updateInfo.fulfilled, (state, action) => {
+      .addCase(updateUser.fulfilled, (state, action) => {
         state.currentUser = action.payload;
         Cookies.set("INFO", JSON.stringify(state.currentUser));
       });
@@ -123,12 +123,10 @@ export const refreshToken = createAsyncThunk(
   }
 );
 
-export const updateInfo = createAsyncThunk(
-  "auth/updateInfo",
-  async (
-    { id, username, email, avatar, address, phone },
-    { rejectWithValue }
-  ) => {
+export const updateUser = createAsyncThunk(
+  "auth/updateUser",
+  async (data, { rejectWithValue }) => {
+    console.log(data);
     try {
       const formData = new FormData();
       if (avatar) {

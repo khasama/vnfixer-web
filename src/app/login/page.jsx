@@ -25,11 +25,13 @@ function LoginPage() {
   useEffect(() => {
     if (messageError.length > 0) {
       notify();
+      isLoggedIn && router.push("/");
     }
   }, [key]);
 
   useEffect(() => {
     isLoggedIn && router.push("/");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn]);
 
   const formik = useFormik({

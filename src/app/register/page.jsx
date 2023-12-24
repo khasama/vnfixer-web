@@ -70,7 +70,7 @@ function RegisterPage() {
   return (
     <>
       <div className="bg-login"></div>
-      <div className=" m-auto shadow-2xl p-10 rounded-lg z-10 bg-slate-100 opacity-95">
+      <div className="m-auto shadow-2xl p-10 rounded-lg z-10 bg-slate-100 opacity-95">
         <Toaster position="bottom-center" />
         {/* Register Form */}
         <Box

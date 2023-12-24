@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { currentUserSelector, isLoggedInSelector } from "../redux/selectors";
 import { logout } from "../redux/reducers/auth";
 import { unwrapResult } from "@reduxjs/toolkit";
+import MessageForm from "./MessageForm/MessageForm";
 
 const navLinks = [
   {
@@ -23,7 +24,7 @@ const navLinks = [
   },
   {
     title: "Dịch vụ",
-    path: "/category",
+    path: "/agency",
   },
 ];
 
@@ -31,6 +32,7 @@ const Navbar = () => {
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [login, setLogin] = useState(false);
   const [hidden, setHidden] = useState(true);
+  const [showMessage, setShowMessage] = useState(false);
   const isLoggedIn = useSelector(isLoggedInSelector);
   const currentUser = useSelector(currentUserSelector);
   const dispatch = useDispatch();
@@ -41,6 +43,7 @@ const Navbar = () => {
   // };
 
   const handleLogOut = () => {
+    setHidden(true);
     dispatch(logout())
       .then(unwrapResult)
       .catch((err) => console.log(err));
@@ -58,11 +61,11 @@ const Navbar = () => {
           className="text-2xl md:text-5xl text-black font-semibold"
         >
           <Image
-            loading="lazy"
             alt="VNFIXER-LOGO"
             width={200}
-            height={50}
+            height={0}
             src={logo01}
+            priority
           ></Image>
         </Link>
         <div className="mobile-menu z-50 block md:hidden">
@@ -90,9 +93,12 @@ const Navbar = () => {
               </li>
             ))}
             <li>
-              <button className="flex justify-center items-center gap-2 border border-[#4694EF] hover:border-[#326bac] text-[#4694EF] font-bold py-2 px-8 rounded-full">
+              <Link
+                href={"tel:0342246435"}
+                className="flex justify-center items-center gap-2 border border-[#4694EF] hover:border-[#326bac] text-[#4694EF] font-bold py-2 px-8 rounded-full"
+              >
                 Hotline <PhoneIcon width={15}></PhoneIcon>
-              </button>
+              </Link>
             </li>
             <li>
               {!login ? (
@@ -128,7 +134,7 @@ const Navbar = () => {
                     data-popover="menu"
                     data-popover-placement="bottom"
                     hidden={hidden}
-                    className="absolute z-10 min-w-[150px] overflow-auto rounded-md border border-blue-gray-50 bg-white p-3 font-sans text-sm font-normal text-blue-gray-500 shadow-lg shadow-blue-gray-500/10 focus:outline-none "
+                    className="absolute z-10 min-w-[170px] overflow-auto rounded-md border border-blue-gray-50 bg-white p-3 font-sans text-sm font-normal text-blue-gray-500 shadow-lg shadow-blue-gray-500/10 focus:outline-none "
                   >
                     <li
                       role="menuitem"
@@ -139,10 +145,25 @@ const Navbar = () => {
                       </Link>
                     </li>
                     <li
+                      onClick={() => {
+                        setShowMessage(!showMessage);
+                      }}
                       role="menuitem"
                       className="hover:underline block w-full cursor-pointer select-none rounded-md px-3 pt-[9px] pb-2 text-start leading-tight transition-all hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
                     >
-                      <b> Tin nhắn</b>
+                      <b> Thông báo</b>
+                    </li>
+                    <li
+                      role="menuitem"
+                      className="hover:underline block w-full cursor-pointer select-none rounded-md px-3 pt-[9px] pb-2 text-start leading-tight transition-all hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
+                    >
+                      <b>
+                        {currentUser?.agencyRole?.length > 0 ? (
+                          <Link href={"/manage"}>Quản lý yêu cầu</Link>
+                        ) : (
+                          <Link href={"/my_request"}>Yêu cầu của tôi</Link>
+                        )}
+                      </b>
                     </li>
                     <li
                       onClick={handleLogOut}
@@ -159,6 +180,7 @@ const Navbar = () => {
         </div>
       </div>
       {navbarOpen ? <MenuOverlay links={navLinks} /> : null}
+      {showMessage ? <MessageForm onClose={setShowMessage} /> : null}
     </div>
   );
 };

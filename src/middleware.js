@@ -14,9 +14,9 @@ export function middleware(request) {
   // console.log("load", origin);
   // const token = cookies.access_token;
   // const decoded = jwtDecode(token);
-  // console.log(decoded.role);
+  // console.log(decoded.agencyRole);
 
-  if (request.url.includes("/manage") && role !== "guest") {
+  if (request.url.includes("/manage") && role == "ADMIN") {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);

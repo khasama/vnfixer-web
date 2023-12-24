@@ -15,7 +15,7 @@ const CardAgency = ({
 }) => {
   const STAR_NUMBER = 5;
   return (
-    <Link className="flex flex-row" href={`/agency/${id}`}>
+    <Link className="flex flex-row" href={`/agency/${id}/${title}`}>
       <Image
         className="w-2/5 h-auto m-auto pl-2"
         src={imgUrl ? imgUrl : require("../../../public/images/logo.png")}

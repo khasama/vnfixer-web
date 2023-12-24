@@ -17,6 +17,7 @@ import { cities } from "../constants";
 import vnfixerAPI from "../api/vnfixerApi";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import FormRequest from "./FormRequest";
 
 const Banner = () => {
   const dispatch = useDispatch();
@@ -66,11 +67,6 @@ const Banner = () => {
 
   const handleChangeProvince = (event) => {
     setProvince(event.target.value);
-    // dispatch(getDistricts(event.target.value))
-    //   .then(unwrapResult)
-    //   .catch((err) => {
-    //     alert(err.message);
-    //   });
   };
 
   const handleChangeDevice = (event) => {
@@ -146,165 +142,7 @@ const Banner = () => {
             />
           </h1>
         </motion.div>
-        <div className="bg-white p-5 rounded-md w-4/5 mx-5 md:mx-0 xl xl:w-1/2 shadow-xl">
-          <div className="grid sm:grid-cols-2 sm:gap-10 sm:flex-col grid-cols-1 ">
-            <div className="flex gap-3 flex-col justify-start items-center flex-wrap w-full">
-              <div className="flex flex-row justify-between items-center flex-wrap w-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="w-6 h-6 transform rotate-45 text-[#EB5757]"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M4.5 7.5a3 3 0 013-3h9a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <TextField
-                  required
-                  fullWidth
-                  id="standard-basic"
-                  label="Họ và tên"
-                  helperText=""
-                  variant="standard"
-                  className="w-10/12"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                />
-              </div>
-
-              <div className="flex flex-row justify-between gap-5 w-full">
-                <div className="w-1/2">
-                  <TextField
-                    required
-                    fullWidth
-                    id="standard-basic"
-                    label="Số điện thoại"
-                    helperText=""
-                    variant="standard"
-                    type="number"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
-                </div>
-                <FormControl fullWidth variant="standard" className="w-1/2">
-                  <InputLabel id="demo-simple-select-standard-label" required>
-                    Tỉnh/Thành
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-standard-label"
-                    id="demo-simple-select-standard"
-                    value={province}
-                    onChange={handleChangeProvince}
-                    label="province"
-                  >
-                    {cities &&
-                      cities.map((city, index) => {
-                        return (
-                          <MenuItem key={index} value={city}>
-                            {city}
-                          </MenuItem>
-                        );
-                      })}
-                  </Select>
-                </FormControl>
-              </div>
-              <FormControl className="w-full" variant="standard">
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DemoContainer components={["DatePicker"]}>
-                    <DatePicker
-                      label="Ngày dự kiến"
-                      value={date}
-                      onChange={(e) => setDate(e)}
-                      minDate={dayjs()}
-                      sx={{
-                        width: "100%",
-                        padding: 0,
-                        height: "100%",
-                        overflow: "hidden",
-                      }}
-                      slotProps={{ textField: { variant: "standard" } }}
-                    />
-                  </DemoContainer>
-                </LocalizationProvider>
-              </FormControl>
-            </div>
-            <div className="flex gap-3 flex-col justify-start items-center flex-wrap w-full">
-              <div className="flex flex-row justify-between items-center flex-wrap w-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="w-6 h-6 transform rotate-45 text-[#2877E5]"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M4.5 7.5a3 3 0 013-3h9a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <FormControl variant="standard" className="w-10/12">
-                  <InputLabel id="demo-simple-select-standard-label">
-                    Thiết bị
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-standard-label"
-                    id="demo-simple-select-standard"
-                    value={device}
-                    onChange={(e) => handleChangeDevice(e)}
-                    label="device"
-                  >
-                    {categories &&
-                      categories.map((category, index) => {
-                        return (
-                          <MenuItem key={index} value={category.id}>
-                            {category.name}
-                          </MenuItem>
-                        );
-                      })}
-                  </Select>
-                </FormControl>
-              </div>
-
-              <div className="flex flex-row justify-between gap-5 w-full">
-                <TextField
-                  className="w-1/2"
-                  fullWidth
-                  id="standard-basic"
-                  value={email}
-                  onChange={handleChangeEmail}
-                  label="Email"
-                  variant="standard"
-                  error={!isValidEmail}
-                  helperText={!isValidEmail && "Định dạng email không đúng"}
-                />
-                <TextField
-                  className="w-1/2"
-                  fullWidth
-                  id="standard-basic"
-                  label="Mô tả"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  helperText=""
-                  variant="standard"
-                />
-              </div>
-              <div className="flex flex-row justify-between pt-5">
-                <button
-                  onClick={handleSubmit}
-                  className="bg-[#FFD333] hover:bg-[#ac9132] text-black font-bold py-3 px-10 rounded"
-                >
-                  Yêu cầu
-                </button>
-                {/* <LoadingButton className="py-3 px-10" loading hidden variant="outlined">
-                  Submit
-                </LoadingButton> */}
-              </div>
-            </div>
-          </div>
-        </div>
+        <FormRequest></FormRequest>
       </div>
     </div>
   );

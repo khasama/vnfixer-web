@@ -15,6 +15,10 @@ const vnfixerAPI = {
     const url = `/requests`;
     return instance.post(url, { ...params });
   },
+  sendRequestById: (params) => {
+    const url = `/requests`;
+    return instance.post(url, { ...params });
+  },
   getRequests: (limit = "10", page = "1") => {
     const query = {
       ...limit,
@@ -39,6 +43,23 @@ const vnfixerAPI = {
     return instance.get(url);
   },
   //Agency
+  getAgenciesBy: (
+    city = "Tiền Giang",
+    categoryId = "7",
+    limit = "10",
+    page = "1"
+  ) => {
+    const query = {
+      ...{ city },
+      ...{ categoryId },
+      ...{ limit },
+      ...{ page },
+    };
+    const url = `/agencies?${queryString.stringify({
+      ...query,
+    })}`;
+    return instance.get(url);
+  },
   getAgencies: (limit = "10", page = "1") => {
     const query = {
       ...{ limit },
@@ -50,7 +71,7 @@ const vnfixerAPI = {
     return instance.get(url);
   },
   getAgency: (id) => {
-    const url = `/agency?${id}`;
+    const url = `/agencies/${id}`;
     return instance.get(url);
   },
 
