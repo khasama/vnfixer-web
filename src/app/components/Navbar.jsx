@@ -8,9 +8,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import logo01 from "../../../public/images/logo01.png";
 import { useDispatch, useSelector } from "react-redux";
-import { isLoggedInSelector } from "../redux/selectors";
+import { currentUserSelector, isLoggedInSelector } from "../redux/selectors";
 import { logout } from "../redux/reducers/auth";
 import { unwrapResult } from "@reduxjs/toolkit";
+import MessageForm from "./MessageForm/MessageForm";
 
 const navLinks = [
   {
@@ -22,15 +23,18 @@ const navLinks = [
     path: "/agency",
   },
   {
-    title: "Tra cứu dịch vụ",
-    path: "/category",
+    title: "Dịch vụ",
+    path: "/agency",
   },
 ];
 
 const Navbar = () => {
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [login, setLogin] = useState(false);
+  const [hidden, setHidden] = useState(true);
+  const [showMessage, setShowMessage] = useState(false);
   const isLoggedIn = useSelector(isLoggedInSelector);
+  const currentUser = useSelector(currentUserSelector);
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -39,6 +43,7 @@ const Navbar = () => {
   // };
 
   const handleLogOut = () => {
+    setHidden(true);
     dispatch(logout())
       .then(unwrapResult)
       .catch((err) => console.log(err));
@@ -56,11 +61,11 @@ const Navbar = () => {
           className="text-2xl md:text-5xl text-black font-semibold"
         >
           <Image
-            loading="lazy"
             alt="VNFIXER-LOGO"
             width={200}
-            height={50}
+            height={0}
             src={logo01}
+            priority
           ></Image>
         </Link>
         <div className="mobile-menu z-50 block md:hidden">
@@ -88,9 +93,12 @@ const Navbar = () => {
               </li>
             ))}
             <li>
-              <button className="flex justify-center items-center gap-2 border border-[#4694EF] hover:border-[#326bac] text-[#4694EF] font-bold py-2 px-8 rounded-full">
+              <Link
+                href={"tel:0342246435"}
+                className="flex justify-center items-center gap-2 border border-[#4694EF] hover:border-[#326bac] text-[#4694EF] font-bold py-2 px-8 rounded-full"
+              >
                 Hotline <PhoneIcon width={15}></PhoneIcon>
-              </button>
+              </Link>
             </li>
             <li>
               {!login ? (
@@ -100,18 +108,79 @@ const Navbar = () => {
                   </button>
                 </Link>
               ) : (
-                <button
-                  onClick={handleLogOut}
-                  className="block border-[#4694EF] border text-[#4694EF] font-bold py-2 px-8 rounded-full"
-                >
-                  Đăng xuất
-                </button>
+                <div className="relative">
+                  {hidden && (
+                    <div className="absolute top-3 right-2  bg-red-500 w-2 h-2 rounded-full"></div>
+                  )}
+                  <button
+                    data-ripple-light="true"
+                    data-popover-target="menu"
+                    onClick={() => setHidden(!hidden)}
+                    className="rounded-full select-none p-3 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-gray-900/10 transition-all hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                  >
+                    <Image
+                      src={
+                        currentUser.avatar
+                          ? currentUser.avatar
+                          : require("../../../public/images/default.png")
+                      }
+                      alt={"avatar"}
+                      width={40}
+                      height={40}
+                    ></Image>
+                  </button>
+                  <ul
+                    role="menu"
+                    data-popover="menu"
+                    data-popover-placement="bottom"
+                    hidden={hidden}
+                    className="absolute z-10 min-w-[170px] overflow-auto rounded-md border border-blue-gray-50 bg-white p-3 font-sans text-sm font-normal text-blue-gray-500 shadow-lg shadow-blue-gray-500/10 focus:outline-none "
+                  >
+                    <li
+                      role="menuitem"
+                      className="hover:underline block w-full cursor-pointer select-none rounded-md px-3 pt-[9px] pb-2 text-start leading-tight transition-all hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
+                    >
+                      <Link href={"/profile"}>
+                        <b>Hồ Sơ</b>
+                      </Link>
+                    </li>
+                    <li
+                      onClick={() => {
+                        setShowMessage(!showMessage);
+                      }}
+                      role="menuitem"
+                      className="hover:underline block w-full cursor-pointer select-none rounded-md px-3 pt-[9px] pb-2 text-start leading-tight transition-all hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
+                    >
+                      <b> Thông báo</b>
+                    </li>
+                    <li
+                      role="menuitem"
+                      className="hover:underline block w-full cursor-pointer select-none rounded-md px-3 pt-[9px] pb-2 text-start leading-tight transition-all hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
+                    >
+                      <b>
+                        {currentUser?.agencyRole?.length > 0 ? (
+                          <Link href={"/manage"}>Quản lý yêu cầu</Link>
+                        ) : (
+                          <Link href={"/my_request"}>Yêu cầu của tôi</Link>
+                        )}
+                      </b>
+                    </li>
+                    <li
+                      onClick={handleLogOut}
+                      role="menuitem"
+                      className="hover:underline block w-full cursor-pointer select-none rounded-md px-3 pt-[9px] pb-2 text-start leading-tight transition-all hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
+                    >
+                      <b>Đăng xuất</b>
+                    </li>
+                  </ul>
+                </div>
               )}
             </li>
           </ul>
         </div>
       </div>
       {navbarOpen ? <MenuOverlay links={navLinks} /> : null}
+      {showMessage ? <MessageForm onClose={setShowMessage} /> : null}
     </div>
   );
 };

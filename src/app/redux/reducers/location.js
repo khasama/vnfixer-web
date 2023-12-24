@@ -22,8 +22,6 @@ const locationSlice = createSlice({
 export const getProvinces = createAsyncThunk(
   "location/getProvinces",
   async (_, { rejectWithValue }) => {
-    Cookies.set("ROLE", "guest");
-    console.log(Cookies.get("ROLE"));
     try {
       const res = await vnfixerAPI.getAllProvince();
       if (res.status === 200) {

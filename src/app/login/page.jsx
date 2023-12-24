@@ -1,10 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
-
 // mui
 import { Box, Button, TextField, Typography } from "@mui/material";
-
 // formik
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -27,11 +25,13 @@ function LoginPage() {
   useEffect(() => {
     if (messageError.length > 0) {
       notify();
+      isLoggedIn && router.push("/");
     }
   }, [key]);
 
   useEffect(() => {
     isLoggedIn && router.push("/");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn]);
 
   const formik = useFormik({

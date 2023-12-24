@@ -13,6 +13,8 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(login.fulfilled, (state, action) => {
+        console.log(action.payload?.user);
+        console.log(action.payload);
         state.messageError = "";
         if (action.payload?.user) {
           state.isLoggedIn = true;
@@ -35,7 +37,7 @@ const authSlice = createSlice({
         state.currentUser = action.payload;
         Cookies.set("INFO", JSON.stringify(state.currentUser));
       })
-      .addCase(updateInfo.fulfilled, (state, action) => {
+      .addCase(updateUser.fulfilled, (state, action) => {
         state.currentUser = action.payload;
         Cookies.set("INFO", JSON.stringify(state.currentUser));
       });
@@ -47,19 +49,21 @@ export const login = createAsyncThunk(
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const res = await instance.post(`/auth/login`, { email, password });
+      const response = res.data.user;
       if (res.status === 200) {
         Cookies.set("access_token", res.data.accessToken);
-        return {
-          user: {
-            // id: res.data.data.id,
-            // role: res.data.data.role,
-            // fullName: res.data.data.fullName,
-            // avatar: res.data.data.avatar,
-            // phone: res.data.data.phone,
-            // address: res.data.data.address,
-            // email: res.data.data.email,
-          },
+        const user = {
+          id: response?.id ?? "",
+          email: response?.email ?? "",
+          fullName: response?.fullName ?? "",
+          avatar: response?.imageUrl ?? "",
+          phone: response?.phone ?? "",
+          address: response?.address ?? "",
+          agencyRole: response?.agencyRole ?? "",
+          branchId: response?.branchId ?? "",
+          role: response?.role ?? "",
         };
+        return { user };
       }
     } catch (error) {
       if (error.payload) {
@@ -119,12 +123,10 @@ export const refreshToken = createAsyncThunk(
   }
 );
 
-export const updateInfo = createAsyncThunk(
-  "auth/updateInfo",
-  async (
-    { id, username, email, avatar, address, phone },
-    { rejectWithValue }
-  ) => {
+export const updateUser = createAsyncThunk(
+  "auth/updateUser",
+  async (data, { rejectWithValue }) => {
+    console.log(data);
     try {
       const formData = new FormData();
       if (avatar) {
