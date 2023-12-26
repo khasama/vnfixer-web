@@ -5,18 +5,29 @@ export function middleware(request) {
   const cookieHeader = request.headers.get("cookie");
 
   const cookies = parseCookies(cookieHeader);
+  // console.log(cookies);
 
   const role = cookies.ROLE;
+  // console.log(role);
 
   // console.log(request.method);
   // console.log("URL", request.url);
   // const origin = request.headers;
   // console.log("load", origin);
-  // const token = cookies.access_token;
-  // const decoded = jwtDecode(token);
-  // console.log(decoded.agencyRole);
+  let token = "";
+  let decoded = "";
+
+  if (cookies?.access_token?.length > 0) {
+    token = cookies?.access_token;
+    decoded = jwtDecode(token);
+  }
 
   if (request.url.includes("/manage") && role == "ADMIN") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+  if (request.url.includes("/my_request") && !decoded.role) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);

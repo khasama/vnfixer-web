@@ -33,6 +33,10 @@ const vnfixerAPI = {
     const url = `/requests?${id}`;
     return instance.get(url);
   },
+  getMyRequests: () => {
+    const url = `/requests/me`;
+    return instance.get(url);
+  },
   //Categories
   getCategories: () => {
     const url = `/categories`;

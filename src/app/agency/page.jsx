@@ -42,7 +42,6 @@ const Agencies = () => {
     const getAgencies = async () => {
       try {
         const response = await vnfixerAPI.getAgenciesBy();
-        console.log(response.data.data);
         if (response.status == 200) {
           setAgencies(response.data.data);
         }
