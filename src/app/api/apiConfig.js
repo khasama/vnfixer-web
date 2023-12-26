@@ -1,4 +1,4 @@
-const baseURL = "http://localhost:5000/api/";
+export const baseURL = "http://localhost:5000/api/";
 const provideURL = "https://provinces.open-api.vn/api/p/";
 import axios from "axios";
 import Cookies from "js-cookie";

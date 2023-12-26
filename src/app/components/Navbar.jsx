@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { currentUserSelector, isLoggedInSelector } from "../redux/selectors";
 import { logout } from "../redux/reducers/auth";
 import { unwrapResult } from "@reduxjs/toolkit";
-import MessageForm from "./MessageForm/MessageForm";
+import MessageForm from "./MessageForm";
 
 const navLinks = [
   {
@@ -37,10 +37,6 @@ const Navbar = () => {
   const currentUser = useSelector(currentUserSelector);
   const dispatch = useDispatch();
   const router = useRouter();
-
-  // const handleSign = () => {
-  //   router.push("/login");
-  // };
 
   const handleLogOut = () => {
     setHidden(true);
@@ -140,7 +136,7 @@ const Navbar = () => {
                       role="menuitem"
                       className="hover:underline block w-full cursor-pointer select-none rounded-md px-3 pt-[9px] pb-2 text-start leading-tight transition-all hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
                     >
-                      <Link href={"/profile"}>
+                      <Link onClick={() => setHidden(true)} href={"/profile"}>
                         <b>Hồ Sơ</b>
                       </Link>
                     </li>
@@ -159,9 +155,19 @@ const Navbar = () => {
                     >
                       <b>
                         {currentUser?.agencyRole?.length > 0 ? (
-                          <Link href={"/manage"}>Quản lý yêu cầu</Link>
+                          <Link
+                            onClick={() => setHidden(true)}
+                            href={"/manage"}
+                          >
+                            Quản lý yêu cầu
+                          </Link>
                         ) : (
-                          <Link href={"/my_request"}>Yêu cầu của tôi</Link>
+                          <Link
+                            onClick={() => setHidden(true)}
+                            href={"/my_request"}
+                          >
+                            Yêu cầu của tôi
+                          </Link>
                         )}
                       </b>
                     </li>
