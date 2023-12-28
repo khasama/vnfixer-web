@@ -11,6 +11,7 @@ import vnfixerAPI from "../api/vnfixerApi";
 import CardAgency from "../components/CardAgency";
 import Image from "next/image";
 import spinner from "../../../public/images/Spin-1s-200px.svg";
+import FilterSide from "../components/FilterSide";
 
 export const metadata = {
   title: "VNFIXER | Agency",
@@ -23,12 +24,6 @@ const Agencies = () => {
   const [selectedCheckbox, setSelectedCheckbox] = useState(null);
   const [title, setTitle] = useState("");
   const [agencies, setAgencies] = useState();
-
-  const handleCheckboxChange = (id) => {
-    setSelectedCheckbox(id === selectedCheckbox ? null : id);
-    const titleFiltered = categories?.filter((item) => item.id === id);
-    setTitle(titleFiltered[0].name);
-  };
 
   useEffect(() => {
     const getAllCategory = () => {
@@ -74,6 +69,12 @@ const Agencies = () => {
       getAgencies();
     }
   }, [city, selectedCheckbox]);
+
+  const handleCheckboxChange = (id) => {
+    setSelectedCheckbox(id === selectedCheckbox ? null : id);
+    const titleFiltered = categories?.filter((item) => item.id === id);
+    setTitle(titleFiltered[0].name);
+  };
 
   const handleChangeCity = (city) => {
     setCity(city);
@@ -157,83 +158,12 @@ const Agencies = () => {
         </ol>
       </div>
       <div className="flex my-3 gap-3">
-        <div className="bg-white p-4 h-[90vh] rounded-lg shadow-lg w-[20em]">
-          <div className="mb-4">
-            <div className="flex flex-col">
-              <b className="px-3 text-gray-700">1. Thiết bị</b>
-              {categories &&
-                categories.map((category, index) => (
-                  <div key={index}>
-                    <div className="inline-flex items-center">
-                      <label
-                        className="relative flex items-center p-3 rounded-full cursor-pointer"
-                        htmlFor="ripple-off"
-                      >
-                        <input
-                          id={category.id}
-                          checked={category.id === selectedCheckbox}
-                          onChange={() => handleCheckboxChange(category.id)}
-                          type="checkbox"
-                          className="before:content[''] peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-blue-gray-200 transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity checked:border-gray-900 checked:bg-gray-900 checked:before:bg-gray-900 hover:before:opacity-10"
-                        />
-                        <span className="absolute text-white transition-opacity opacity-0 pointer-events-none top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 peer-checked:opacity-100">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-3.5 w-3.5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            stroke="currentColor"
-                            strokeWidth={1}
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </span>
-                      </label>
-                      <label
-                        className="mt-px font-light text-gray-700 cursor-pointer select-none"
-                        htmlFor={category.id}
-                      >
-                        {category.name}
-                      </label>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-          <hr className="bg-warmGray-600 my-5" />
-          <b className="px-3 text-gray-700">2. Tỉnh thành</b>
-          <div className="w-full my-3">
-            <div className="dropdown inline-block relative w-full">
-              <button className="bg-white shadow-2xl text-gray-700 font-semibold py-2 px-4 rounded-md inline-flex items-center w-full">
-                <span className="mr-1">
-                  {city && city.length > 0 ? city : "Tỉnh thành"}
-                </span>
-                <svg
-                  className="fill-current h-4 w-4"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />{" "}
-                </svg>
-              </button>
-              <ul className="dropdown-menu absolute hidden rounded-lg text-gray-700 pt-1 z-10 shadow-lg h-[300px] w-full scrollbar overflow-y-scroll overscroll-x-none">
-                {cities.map((city, index) => (
-                  <li
-                    onClick={() => handleChangeCity(city)}
-                    key={index}
-                    className="rounded-t bg-white hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap"
-                  >
-                    {city}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
+        <FilterSide
+          onchangeCity={handleChangeCity}
+          onchangeCategory={handleCheckboxChange}
+          city={city}
+          selectedCheckbox={selectedCheckbox}
+        ></FilterSide>
         <div className="w-full">
           <div className="result flex flex-row gap-5 items-center">
             <p className="font-bold text-lg text-gray-600">

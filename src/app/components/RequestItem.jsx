@@ -19,28 +19,33 @@ const RequestItem = (props) => {
       return "bg-violet-500";
     }
   };
-  console.log(props);
   return (
     <div className="px-4 py-2 bg-white shadow-md w-full rounded-md flex flex-col md:flex-row items-center gap-2">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full lg:w-3/6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full lg:w-5/12">
         <div className="">
           <span className="md:text-sm text-xs">Tiêu đề:</span>
           <b className="md:text-sm text-xs"> {props.title}</b>
+        </div>
+        <div className="">
+          <span className="md:text-sm text-xs">Tên khách hàng</span>
+          <b className="md:text-sm text-xs"> {props.customerName}</b>
         </div>
         <div className="">
           <span className="md:text-sm text-xs">Thành phố:</span>
           <b className="md:text-sm text-xs"> {props.city}</b>
         </div>
         <div className="">
-          <span className="md:text-sm text-xs">Ngày dự kiến:</span>
-          <b className="md:text-sm text-xs">{props.expectDate}</b>
-        </div>
-        <div className="">
-          <span className="md:text-sm text-xs">Tên khách hàng</span>
-          <b className="md:text-sm text-xs"> {props.customerName}</b>
+          <span className="md:text-sm text-xs">Ngày dự kiến: </span>
+          <b className="md:text-sm text-xs">
+            {props?.expectDate?.map((item, index) => (
+              <span key={index}>
+                {item} {props?.expectDate?.length > 1 && " | "}
+              </span>
+            ))}
+          </b>
         </div>
       </div>
-      <div className="md:w-2/6 w-full flex gap-2">
+      <div className="md:w-4/12 w-full flex gap-2">
         <div className="w-1/3">
           <div
             className={`${getStatusColor(
@@ -51,22 +56,22 @@ const RequestItem = (props) => {
           </div>
         </div>
         <div className="w-2/3 shrink-0 hidden lg:block">
-          {props?.branch &&
-            props?.branch?.agency?.name + " - " + props?.branch?.city}
+          {props?.branch?.agency?.name && props?.branch?.agency?.name + " - "}
+          {props?.branch?.city && props?.branch?.city}
         </div>
       </div>
-      <div className="lg:w-1/6 w-full">
+      <div className="lg:w-3/12 w-full">
         <div className="grid grid-col-1 gap-2">
           <div className="flex items-center gap-5">
-            <div class="flex items-center gap-1 text-blue-700 underline text-sm">
+            <div className="flex items-center gap-1 text-blue-700 underline text-sm">
               <span>Thông tin chi tiết</span>
               <i
                 aria-label="icon: caret-down"
-                class="anticon anticon-caret-down"
+                className="anticon anticon-caret-down"
               >
                 <svg
                   viewBox="0 0 1024 1024"
-                  class=""
+                  className=""
                   data-icon="caret-down"
                   width="1em"
                   height="1em"
@@ -78,32 +83,53 @@ const RequestItem = (props) => {
                 </svg>
               </i>
             </div>
-            <div className="btn">
-              <Button
-                type={"button"}
-                className={""}
-                onClick={() => alert("oke")}
-              >
-                <FaPencilAlt></FaPencilAlt>
-              </Button>
-            </div>
-            <div className="btn">
-              <Button
-                type={"button"}
-                className={""}
-                onClick={() => alert("oke")}
-                disabled={props.status != "PENDING" ? false : true}
-              >
-                <small className="text-gray-600">Huỷ</small>
-              </Button>
-            </div>
+            {props.status == "PENDING" && (
+              <>
+                <div className="btn">
+                  {typeof props?.onPick === "function" ? (
+                    <Button
+                      type={"button"}
+                      className={"bg-lightBlue-400 py-1 px-3 rounded-lg"}
+                      onClick={() => props.onPick(props.id)}
+                    >
+                      <b>Lấy</b>
+                    </Button>
+                  ) : (
+                    <Button
+                      type={"button"}
+                      className={""}
+                      onClick={() => alert("oke")}
+                    >
+                      <FaPencilAlt></FaPencilAlt>
+                    </Button>
+                  )}
+                </div>
+                <div className="btn">
+                  {typeof props?.onPick === "function" ? (
+                    <Button
+                      type={"button"}
+                      className={"text-gray-600 cursor-pointer text-xs"}
+                      onClick={() => alert("oke")}
+                      disabled={props.status != "PENDING" ? false : true}
+                    >
+                      Từ chối
+                    </Button>
+                  ) : (
+                    <Button
+                      type={"button"}
+                      className={""}
+                      onClick={() => alert("oke")}
+                      disabled={props.status != "PENDING" ? false : true}
+                    >
+                      <small className="text-gray-600">Huỷ</small>
+                    </Button>
+                  )}
+                </div>
+              </>
+            )}
           </div>
-          <div className="flex items-center justify-end gap-5">
-            <ReactTimeAgo
-              className="text-xs"
-              date={Date.parse(props.createdAt)}
-              locale="EN-US"
-            />
+          <div className="flex items-center justify-end gap-5 text-xs">
+            <ReactTimeAgo date={Date.parse(props.createdAt)} locale="EN-US" />
           </div>
         </div>
       </div>

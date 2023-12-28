@@ -1,18 +1,49 @@
+"use client";
 import Link from "next/link";
-import React from "react";
-import { cookies } from "next/headers";
+import React, { useEffect, useState } from "react";
+// import { cookies } from "next/headers";
 import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { isLoggedInSelector } from "../redux/selectors";
+import vnfixerAPI from "../api/vnfixerApi";
 import RequestItem from "../components/RequestItem";
-import TimeAgo from "javascript-time-ago";
 
-import en from "javascript-time-ago/locale/en.json";
-import ru from "javascript-time-ago/locale/ru.json";
+// const getRequest = async () => {
+//   const cookieStore = cookies();
+//   const token = cookieStore.get("access_token");
+//   const data = await fetch("http://localhost:5000/api/requests/me", {
+//     headers: {
+//       Authorization: `Bearer ${token.value}`,
+//     },
+//     cache: "no-store",
+//   });
 
-TimeAgo.addDefaultLocale(en);
-TimeAgo.addLocale(ru);
+//   const res = await data.json();
+//   return res.data;
+// };
 
-const MyRequest = async () => {
-  const requests = await getRequest();
+const MyRequest = () => {
+  const isLoggedIn = useSelector(isLoggedInSelector);
+  const [requests, setRequests] = useState();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      const getMyRequest = async () => {
+        try {
+          const response = await vnfixerAPI.getMyRequests();
+          if (response.status == 200) {
+            setRequests(response.data.data);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      getMyRequest();
+    } else if (!isLoggedIn) {
+      setRequests();
+    }
+  }, [isLoggedIn]);
+
   return (
     <div className="container mx-auto">
       <div className="px-3 py-5 bg-[#3484e0] rounded-lg">
@@ -87,8 +118,8 @@ const MyRequest = async () => {
           </li>
         </ol>
       </div>
-      <div className="flex flex-col gap-3 items-center justify-center my-3">
-        {requests && requests ? (
+      <div className="flex flex-col gap-3 items-center justify-center my-3 max-h-[100vh] overflow-auto scrollbar">
+        {requests && requests?.length > 0 ? (
           requests?.map((request) => (
             <RequestItem
               key={request.id}
@@ -113,16 +144,3 @@ const MyRequest = async () => {
 };
 
 export default MyRequest;
-
-const getRequest = async () => {
-  const cookieStore = cookies();
-  const token = cookieStore.get("access_token");
-  const data = await fetch("http://localhost:5000/api/requests/me", {
-    headers: {
-      Authorization: `Bearer ${token.value}`,
-    },
-  });
-
-  const res = await data.json();
-  return res.data;
-};

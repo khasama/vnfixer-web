@@ -21,12 +21,20 @@ export function middleware(request) {
     token = cookies?.access_token;
     decoded = jwtDecode(token);
   }
-
-  if (request.url.includes("/manage") && role == "ADMIN") {
+  if (
+    request.url.includes("/manage/manager") &&
+    decoded.agencyRole != "MANAGER"
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
   }
+  if (request.url.includes("/manage/staff") && !decoded.agencyRole) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+
   if (request.url.includes("/my_request") && !decoded.role) {
     const url = request.nextUrl.clone();
     url.pathname = "/";

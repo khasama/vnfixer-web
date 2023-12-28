@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useSelector } from "react-redux";
 import { categoriesSelector } from "@/app/redux/selectors";
 import Link from "next/link";
-import { FaListUl, FaLocationDot, FaMinus } from "react-icons/fa6";
+import { FaBuilding, FaListUl, FaLocationDot, FaMinus } from "react-icons/fa6";
 import CardAgency from "@/app/components/CardAgency";
 import FormRequest from "@/app/components/FormRequest";
 import { Toaster } from "react-hot-toast";
@@ -207,7 +207,7 @@ const Agency = ({ params }) => {
                 >
                   <div className="w-2/3">
                     <p className="text-lg flex items-center gap-2 flex-row">
-                      <FaLocationDot className="text-[#4694EF]" />
+                      <FaBuilding className="text-[#4694EF]" />
                       {branch.city}
                     </p>
                     <p className="text-lg flex items-center gap-2 flex-row">
