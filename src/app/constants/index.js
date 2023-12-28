@@ -63,3 +63,5 @@ export const cities = [
   "Vĩnh Phúc",
   "Yên Bái",
 ];
+
+export const requestStatus = ["PENDING", "ACCEPT", "DONE", "CANCEL"];

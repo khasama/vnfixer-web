@@ -78,17 +78,35 @@ const vnfixerAPI = {
     const url = `/agencies/${id}`;
     return instance.get(url);
   },
-
-  //   getProvinces: (id, name, idUser) => {
-  //     const query = {
-  //       ...(id && { bookId: id }),
-  //       ...(name && { bookName: name }),
-  //       ...(idUser && { userProfileId: idUser }),
-  //     };
-  //     const url = `books/find?${queryString.stringify({
-  //       ...query,
-  //     })}`;
-  //     return instance.get(url);
-  //   },
+  // Manage
+  getRequestManager: ({ limit = "10", page = "1", category, city, status }) => {
+    const query = {
+      ...{ limit },
+      ...{ page },
+      ...(category && { category }),
+      ...(city && { city }),
+      ...(status && { status }),
+    };
+    const url = `/requests?${queryString.stringify({
+      ...query,
+    })}`;
+    return instance.get(url);
+  },
+  pickRequestManager: (id) => {
+    const url = `/requests/pick/${id}`;
+    return instance.put(url);
+  },
+  getBranches: (id) => {
+    const url = `/agencies/${id}`;
+    return instance.get(url);
+  },
+  getStaffs: () => {
+    const url = `/branches/staffs`;
+    return instance.get(url);
+  },
+  removeStaff: (id) => {
+    const url = `branches/remove-staff/${id}`;
+    return instance.delete(url);
+  },
 };
 export default vnfixerAPI;

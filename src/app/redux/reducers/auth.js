@@ -62,6 +62,7 @@ export const login = createAsyncThunk(
           agencyRole: response?.agencyRole ?? "",
           branchId: response?.branchId ?? "",
           role: response?.role ?? "",
+          agencyId: response?.branch?.agencyId ?? "",
         };
         return { user };
       }
