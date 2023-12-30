@@ -58,7 +58,6 @@ const Agencies = () => {
             10,
             1
           );
-          console.log(response.data.data);
           if (response.status == 200) {
             setAgencies(response.data.data);
           }

@@ -78,6 +78,10 @@ const vnfixerAPI = {
     const url = `/agencies/${id}`;
     return instance.get(url);
   },
+  updateAgency: (id, data) => {
+    const url = `/agencies/${id}`;
+    return instance.put(url, data);
+  },
   // Manage
   getRequestManager: ({ limit = "10", page = "1", category, city, status }) => {
     const query = {
@@ -100,6 +104,14 @@ const vnfixerAPI = {
     const url = `/agencies/${id}`;
     return instance.get(url);
   },
+  createBranch: (data) => {
+    const url = `/branches`;
+    return instance.post(url, data);
+  },
+  updateBranch: (id, data) => {
+    const url = `/branches/${id}`;
+    return instance.put(url, data);
+  },
   getStaffs: () => {
     const url = `/branches/staffs`;
     return instance.get(url);
@@ -107,6 +119,23 @@ const vnfixerAPI = {
   removeStaff: (id) => {
     const url = `branches/remove-staff/${id}`;
     return instance.delete(url);
+  },
+  //staff
+  getTakeRequest: () => {
+    const url = `/requests/requests-take`;
+    return instance.get(url);
+  },
+  pickRequestStaff: (id) => {
+    const url = `/requests/take/${id}`;
+    return instance.put(url);
+  },
+  getTakedRequest: () => {
+    const url = `/requests/request-taked`;
+    return instance.get(url);
+  },
+  changeStatusRequest: (id, status) => {
+    const url = `/requests/change-status/${id}?status=${status}`;
+    return instance.patch(url);
   },
 };
 export default vnfixerAPI;

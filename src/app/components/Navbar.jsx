@@ -105,7 +105,9 @@ const Navbar = () => {
                   }`}
                   className="flex justify-center items-center gap-2 border bg-[#4694EF] hover:border-[#326bac] text-white font-bold py-2 px-8 rounded-full"
                 >
-                  Quản lý yêu cầu
+                  {user?.agencyRole == "STAFF"
+                    ? "Quản lý yêu cầu"
+                    : "Quản lý chi nhánh"}
                 </Link>
               )}
             </li>
@@ -121,6 +123,12 @@ const Navbar = () => {
                   {hidden && (
                     <div className="absolute top-3 right-2  bg-red-500 w-2 h-2 rounded-full"></div>
                   )}
+                  {!hidden && (
+                    <div
+                      className="fixed inset-0 w-full h-full"
+                      onClick={() => setHidden(!hidden)}
+                    ></div>
+                  )}
                   <button
                     data-ripple-light="true"
                     data-popover-target="menu"
@@ -129,8 +137,8 @@ const Navbar = () => {
                   >
                     <Image
                       src={
-                        currentUser.avatar
-                          ? currentUser.avatar
+                        currentUser?.avatar
+                          ? currentUser?.avatar
                           : require("../../../public/images/default.png")
                       }
                       alt={"avatar"}
@@ -189,7 +197,9 @@ const Navbar = () => {
                                 : "/manage/manager"
                             }`}
                           >
-                            Quản lý yêu cầu
+                            {user?.agencyRole == "STAFF"
+                              ? "Quản lý yêu cầu"
+                              : "Quản lý chi nhánh"}
                           </Link>
                         </b>
                       </li>
