@@ -65,3 +65,5 @@ export const cities = [
 ];
 
 export const requestStatus = ["PENDING", "ACCEPT", "DONE", "CANCEL"];
+
+export const requestStaffStatus = ["DONE", "CANCEL"];

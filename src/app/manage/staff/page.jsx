@@ -8,6 +8,20 @@ import {
   AccordionHeader,
   AccordionBody,
 } from "@material-tailwind/react";
+import vnfixerAPI from "@/app/api/vnfixerApi";
+import { RequestItemStaff } from "@/app/components/RequestItem";
+import toast, { Toaster } from "react-hot-toast";
+import { FaRotateRight } from "react-icons/fa6";
+import {
+  FaAt,
+  FaBuilding,
+  FaCircleUser,
+  FaHandHoldingHand,
+  FaLocationDot,
+  FaMobileScreen,
+  FaPersonMilitaryRifle,
+} from "react-icons/fa6";
+import Image from "next/image";
 
 export const metadata = {
   title: "VNFIXER | Request Management",
@@ -19,6 +33,22 @@ const Manager = () => {
   const [user, setUser] = useState();
   const isLoggedIn = useSelector(isLoggedInSelector);
   const currentUser = useSelector(currentUserSelector);
+  const [open, setOpen] = useState(0);
+  const [alwaysOpen, setAlwaysOpen] = useState(true);
+  const [inf, setInf] = useState([]);
+  const getMyRequest = async () => {
+    try {
+      const takeRes = await vnfixerAPI.getTakeRequest();
+      if (takeRes.status == 200) {
+        setInf(takeRes.data.data[0].branch);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getMyRequest();
+  }, []);
 
   useEffect(() => {
     setLogin(isLoggedIn);
@@ -31,47 +61,315 @@ const Manager = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn]);
-  const [open, setOpen] = React.useState(0);
-  const [alwaysOpen, setAlwaysOpen] = React.useState(true);
 
   const handleAlwaysOpen = () => setAlwaysOpen((cur) => !cur);
   const handleOpen = (value) => setOpen(open === value ? 0 : value);
+
   return (
-    <div className="p-4 text-black">
-      <Accordion open={alwaysOpen}>
-        <AccordionHeader onClick={handleAlwaysOpen}>
-          What is Material Tailwind?
-        </AccordionHeader>
-        <AccordionBody>
-          We&apos;re not always in the position that we want to be at.
-          We&apos;re constantly growing. We&apos;re constantly making mistakes.
-          We&apos;re constantly trying to express ourselves and actualize our
-          dreams.
-        </AccordionBody>
-      </Accordion>
-      <Accordion open={open === 1}>
-        <AccordionHeader onClick={() => handleOpen(1)}>
-          How to use Material Tailwind?
-        </AccordionHeader>
-        <AccordionBody>
-          We&apos;re not always in the position that we want to be at.
-          We&apos;re constantly growing. We&apos;re constantly making mistakes.
-          We&apos;re constantly trying to express ourselves and actualize our
-          dreams.
-        </AccordionBody>
-      </Accordion>
-      <Accordion open={open === 2}>
-        <AccordionHeader onClick={() => handleOpen(2)}>
-          What can I do with Material Tailwind?
-        </AccordionHeader>
-        <AccordionBody>
-          We&apos;re not always in the position that we want to be at.
-          We&apos;re constantly growing. We&apos;re constantly making mistakes.
-          We&apos;re constantly trying to express ourselves and actualize our
-          dreams.
-        </AccordionBody>
-      </Accordion>
+    <div className="w-full flex flex-row gap-5 max-h-[100vh] overflow-auto scrollbar">
+      <Toaster position="top-center" />
+      <div className="flex flex-col my-3 gap-3">
+        <div className="bg-lightBlue-50 p-5 h-[90vh] rounded-lg shadow-lg w-[20em]">
+          <Image
+            loading="lazy"
+            src={
+              inf?.agency?.logo?.length > 0
+                ? inf.agency.logo
+                : "/images/logo.png"
+            }
+            alt={"Agency logo"}
+            width={0}
+            height={0}
+            sizes="20vw"
+            style={{ width: "50%", height: "auto", margin: "auto" }}
+          ></Image>
+          <ul className="flex flex-col justify-center-center gap-5">
+            <li className="flex flex-row gap-4 items-start">
+              <FaBuilding className="text-[#4694EF]"></FaBuilding>
+
+              <p>{inf?.agency?.name}</p>
+            </li>
+            <li className="flex flex-row gap-4 items-center">
+              <FaLocationDot className="text-[#4694EF]"></FaLocationDot>
+              <p>{inf?.city}</p>
+            </li>
+            <li className="flex flex-row gap-4 items-center">
+              <p>{inf?.address}</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div className="w-full">
+        <div className="p-4 text-black flex flex-col gap-4">
+          <Accordion
+            open={alwaysOpen}
+            className="border border-violet-300 p-3 rounded-md shadow-md"
+          >
+            <AccordionHeader onClick={handleAlwaysOpen}>
+              ĐANG CHỜ
+            </AccordionHeader>
+            <AccordionBody>
+              <Picked></Picked>
+            </AccordionBody>
+          </Accordion>
+          <Accordion
+            className="border border-sky-300 p-3 rounded-md shadow-md"
+            open={open === 1}
+          >
+            <AccordionHeader onClick={() => handleOpen(1)}>
+              ĐÃ CHẤP NHẬP
+            </AccordionHeader>
+            <AccordionBody>
+              <Taken></Taken>
+            </AccordionBody>
+          </Accordion>
+          <Accordion
+            className="border border-green-300 p-3 rounded-md shadow-md"
+            open={open === 2}
+          >
+            <AccordionHeader onClick={() => handleOpen(2)}>
+              ĐÃ HOÀN THÀNH
+            </AccordionHeader>
+            <AccordionBody>Coming soon!</AccordionBody>
+          </Accordion>
+          <Accordion
+            className="border border-red-300 p-3 rounded-md shadow-md"
+            open={open === 3}
+          >
+            <AccordionHeader onClick={() => handleOpen(3)}>
+              ĐÃ HUỶ
+            </AccordionHeader>
+            <AccordionBody>Coming soon!</AccordionBody>
+          </Accordion>
+        </div>
+      </div>
     </div>
+  );
+};
+
+const Picked = () => {
+  const [takeReq, setTakeReq] = useState([]);
+  const getMyRequest = async () => {
+    try {
+      const takeRes = await vnfixerAPI.getTakeRequest();
+      if (takeRes.status == 200) {
+        setTakeReq(takeRes.data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getMyRequest();
+  }, []);
+
+  const handlePickRequest = async (id) => {
+    let res;
+    try {
+      const takenRes = await vnfixerAPI.getTakedRequest();
+      console.log(takenRes);
+      if (takenRes.status == 200) {
+        res = takenRes.data.data;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    if (res == null) {
+      const takedRequest = await vnfixerAPI.pickRequestStaff(id);
+      console.log(takedRequest);
+      getMyRequest();
+      toast.success("Đã nhận yêu cầu");
+    } else {
+      toast.error("Bạn phải hoàn thành yêu cầu đã nhận trước");
+    }
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        className="px-3 py-2 rounded-md bg-slate-400"
+        onClick={getMyRequest}
+      >
+        <FaRotateRight className="text-white"></FaRotateRight>
+      </button>
+      <div className="w-full flex flex-col gap-3 max-h-[100vh] overflow-auto scrollbar">
+        {takeReq?.map((request) => (
+          <RequestItemStaff
+            key={request.id}
+            id={request.id}
+            title={request.title}
+            description={request.description}
+            city={request.city}
+            expectDate={request.expectDate}
+            createdAt={request.createdAt}
+            status={request.status}
+            customerName={request.customerName}
+            category={request.category}
+            branch={request.branch}
+            onPick={handlePickRequest}
+          ></RequestItemStaff>
+        ))}
+      </div>
+    </>
+  );
+};
+const Taken = () => {
+  const [takenReq, setTakenReq] = useState();
+  const getMyRequest = async () => {
+    try {
+      const takenRes = await vnfixerAPI.getTakedRequest();
+      if (takenRes.status == 200) {
+        setTakenReq(takenRes.data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getMyRequest();
+  }, []);
+
+  const handleChangeStatus = async (id, status) => {
+    const statusRes = await vnfixerAPI.changeStatusRequest(id, status);
+    if (statusRes.status == 200) {
+      getMyRequest();
+      toast.success("Đã cập nhật trạng thái");
+    } else {
+      toast.error("Có lỗi xảy ra, vui lòng thử lại");
+    }
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        className="px-3 py-2 rounded-md bg-slate-400"
+        onClick={getMyRequest}
+      >
+        <FaRotateRight className="text-white"></FaRotateRight>
+      </button>
+      <div className="w-full flex flex-col gap-3 max-h-[100vh] overflow-auto scrollbar">
+        {takenReq && takenReq.length !== 0 ? (
+          <RequestItemStaff
+            key={takenReq.id}
+            id={takenReq.id}
+            title={takenReq.title}
+            description={takenReq.description}
+            city={takenReq.city}
+            expectDate={takenReq.expectDate}
+            createdAt={takenReq.createdAt}
+            status={takenReq.status}
+            customerName={takenReq.customerName}
+            category={takenReq.category}
+            branch={takenReq.branch}
+            onChangeStatus={handleChangeStatus}
+          ></RequestItemStaff>
+        ) : (
+          <p>Bạn chưa nhận yêu cầu nào</p>
+        )}
+      </div>
+    </>
+  );
+};
+const Done = () => {
+  const [doneReq, setDoneReq] = useState();
+
+  const getMyRequest = async () => {
+    try {
+      const doneRes = await vnfixerAPI.getDoneRequest();
+      if (doneRes.status == 200) {
+        setDoneReq(doneRes.data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getMyRequest();
+  }, []);
+
+  return (
+    <>
+      <button
+        type="button"
+        className="px-3 py-2 rounded-md bg-slate-400"
+        onClick={getMyRequest}
+      >
+        <FaRotateRight className="text-white"></FaRotateRight>
+      </button>
+      <div className="w-full flex flex-col gap-3 max-h-[100vh] overflow-auto scrollbar">
+        {doneReq && doneReq.length !== 0 ? (
+          doneReq?.map((request) => (
+            <RequestItemStaff
+              key={request.id}
+              id={request.id}
+              title={request.title}
+              description={request.description}
+              city={request.city}
+              expectDate={request.expectDate}
+              createdAt={request.createdAt}
+              status={request.status}
+              customerName={request.customerName}
+              category={request.category}
+              branch={request.branch}
+            ></RequestItemStaff>
+          ))
+        ) : (
+          <p>Bạn chưa hoàn thành yêu cầu nào</p>
+        )}
+      </div>
+    </>
+  );
+};
+const Cancel = () => {
+  const [cancelReq, setCancelReq] = useState();
+
+  const getMyRequest = async () => {
+    try {
+      const cancelRes = await vnfixerAPI.getcancelRequest();
+      if (cancelRes.status == 200) {
+        setCancelReq(cancelRes.data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getMyRequest();
+  }, []);
+
+  return (
+    <>
+      <button
+        type="button"
+        className="px-3 py-2 rounded-md bg-slate-400"
+        onClick={getMyRequest}
+      >
+        <FaRotateRight className="text-white"></FaRotateRight>
+      </button>
+      <div className="w-full flex flex-col gap-3 max-h-[100vh] overflow-auto scrollbar">
+        {cancelReq && cancelReq.length !== 0 ? (
+          cancelReq?.map((request) => (
+            <RequestItemStaff
+              key={request.id}
+              id={request.id}
+              title={request.title}
+              description={request.description}
+              city={request.city}
+              expectDate={request.expectDate}
+              createdAt={request.createdAt}
+              status={request.status}
+              customerName={request.customerName}
+              category={request.category}
+              branch={request.branch}
+            ></RequestItemStaff>
+          ))
+        ) : (
+          <p>Bạn chưa huỷ yêu cầu nào</p>
+        )}
+      </div>
+    </>
   );
 };
 
