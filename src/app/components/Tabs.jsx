@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { currentUserSelector } from "@/app/redux/selectors";
 import FilterSide from "@/app/components/FilterSide";
@@ -24,6 +24,7 @@ import Image from "next/image";
 import ReactTimeAgo from "react-time-ago";
 import Button from "./Button";
 import { cities } from "../constants";
+import { debounce } from "lodash";
 
 const Tabs = () => {
   const [openTab, setOpenTab] = useState(1);
@@ -458,22 +459,6 @@ const StaffTab = () => {
       toast.error("Bạn không thể xoá chủ đại lý");
     }
   };
-  const handleCancelInvite = async (id) => {
-    alert(id);
-    // const res = await vnfixerAPI.cancelInvite(id);
-    // if (res.status == 200) {
-    //   getManagerReq();
-    //   toast.success("Đã huỷ lời mời");
-    // }
-  };
-  const handleInvite = async (id) => {
-    alert(id);
-    // const res = await vnfixerAPI.cancelInvite(id);
-    // if (res.status == 200) {
-    //   getManagerReq();
-    //   toast.success("Đã huỷ lời mời");
-    // }
-  };
 
   return (
     <>
@@ -554,11 +539,7 @@ const StaffTab = () => {
       </ul>
       {showModal ? (
         <>
-          <Invite
-            staffs={staffs}
-            onInvite={handleInvite}
-            setShowModal={setShowModal}
-          ></Invite>
+          <Invite staffs={staffs} setShowModal={setShowModal}></Invite>
         </>
       ) : null}
     </>
@@ -566,6 +547,49 @@ const StaffTab = () => {
 };
 
 const Invite = (props) => {
+  const [customers, setCustomers] = useState();
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleFindCustomer = useCallback(
+    debounce(async (email) => {
+      if (email?.length > 2) {
+        const res = await vnfixerAPI.getCustomer(email);
+        console.log(res);
+        if (res.status == 200) {
+          const filtered = res?.data?.data.filter(
+            (user) => !user?.agencyRole > 0
+          );
+          setCustomers(filtered);
+        }
+      }
+    }, 1000),
+    []
+  );
+
+  const handleCancelInvite = async (id) => {
+    alert(id);
+    // const res = await vnfixerAPI.cancelInvite(id);
+    // if (res.status == 200) {
+    //   getManagerReq();
+    //   toast.success("Đã huỷ lời mời");
+    // }
+  };
+  const handleInvite = async (id) => {
+    const data = {
+      userId: id,
+      role: "STAFF",
+    };
+    try {
+      const res = await vnfixerAPI.inviteCustomer(data);
+      if (res.status == 200) {
+        toast.success("Đã gửi lời mời");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-10 overflow-y-auto">
       <div
@@ -580,73 +604,75 @@ const Invite = (props) => {
               className="bg-transparent p-2 w-full focus:outline-none"
               type="text"
               placeholder="Nhập email"
+              onChange={(e) => handleFindCustomer(e.target.value)}
             />
           </div>
           <div className="mt-3 flex items-center justify-center">
             <div className="mt-2 text-center sm:ml-4 sm:text-left">
               <ul>
-                {props.staffs?.map((customer) => (
-                  <li
-                    key={customer.id}
-                    className="shadow-lg rounded-md px-3 py-2"
-                  >
-                    <div className="w-full flex flex-col md:flex-row max-h-[100vh] overflow-auto scrollbar">
-                      <div className="w-1/4 flex justify-center items-center">
-                        <Image
-                          loading="lazy"
-                          src={
-                            customer?.imageUrl?.length > 0
-                              ? customer.imageUrl
-                              : "/images/staff.png"
+                {customers &&
+                  customers?.map((customer) => (
+                    <li
+                      key={customer.id}
+                      className="shadow-lg rounded-md px-3 py-2"
+                    >
+                      <div className="w-full flex flex-col md:flex-row max-h-[100vh] overflow-auto scrollbar">
+                        <div className="w-1/4 flex justify-center items-center">
+                          <Image
+                            loading="lazy"
+                            src={
+                              customer?.imageUrl?.length > 0
+                                ? customer.imageUrl
+                                : "/images/staff.png"
+                            }
+                            alt={customer.agencyRole}
+                            width={0}
+                            height={0}
+                            sizes="20vw"
+                            style={{
+                              width: "50%",
+                              height: "auto",
+                              margin: "auto",
+                            }}
+                          ></Image>
+                        </div>
+                        <div className="text-[#484848] rounded-b-xl mt-3 px-5 pt-2 pb-5 w-2/4">
+                          <ul>
+                            <li className="text-sm font-semibold mb-2 flex flex-row items-center gap-3">
+                              <FaAt className="text-gray-500"></FaAt>{" "}
+                              {customer.email}
+                            </li>
+                            <li className="text-sm font-semibold mb-2 flex flex-row items-center gap-3">
+                              <FaCircleUser className="text-gray-500"></FaCircleUser>
+                              {customer.fullName}
+                            </li>
+                            <li className="text-sm font-semibold mb-2 flex flex-row items-center gap-3">
+                              <FaMobileScreen className="text-gray-500"></FaMobileScreen>
+                              {customer.phone}
+                            </li>
+                          </ul>
+                        </div>
+                        <div className="w-1/4 flex gap-3 items-center justify-center">
+                          {/* {typeof props.onInvite == "function"  ( */}
+                          {
+                            <button
+                              type="button"
+                              alt="Add"
+                              className="bg-lightBlue-500 text-sm font-semibold rounded-md px-3 py-2 border text-white"
+                              onClick={() => handleInvite(customer.id)}
+                            >
+                              Mời
+                            </button>
                           }
-                          alt={customer.agencyRole}
-                          width={0}
-                          height={0}
-                          sizes="20vw"
-                          style={{
-                            width: "50%",
-                            height: "auto",
-                            margin: "auto",
-                          }}
-                        ></Image>
-                      </div>
-                      <div className="text-[#484848] rounded-b-xl mt-3 px-5 pt-2 pb-5 w-2/4">
-                        <ul>
-                          <li className="text-sm font-semibold mb-2 flex flex-row items-center gap-3">
-                            <FaAt className="text-gray-500"></FaAt>{" "}
-                            {customer.email}
-                          </li>
-                          <li className="text-sm font-semibold mb-2 flex flex-row items-center gap-3">
-                            <FaCircleUser className="text-gray-500"></FaCircleUser>
-                            {customer.fullName}
-                          </li>
-                          <li className="text-sm font-semibold mb-2 flex flex-row items-center gap-3">
-                            <FaMobileScreen className="text-gray-500"></FaMobileScreen>
-                            {customer.phone}
-                          </li>
-                        </ul>
-                      </div>
-                      <div className="w-1/4 flex gap-3 items-center justify-center">
-                        {typeof props.onInvite == "function" ? (
-                          <button
-                            type="button"
-                            alt="Add"
-                            className="bg-lightBlue-500 text-sm font-semibold rounded-md px-3 py-2 border text-white"
-                            onClick={() => props.onInvite(customer.id)}
-                          >
-                            Mời
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            alt="Remove"
-                            className="text-[#ff0040be] text-sm font-semibold rounded-md px-3 py-2 border border-[#ff0040be]"
-                            onClick={() => props.onCancelInvite(customer.id)}
-                          >
-                            Huỷ
-                          </button>
-                        )}
-                        {/* <button
+                          {/* <button
+                              type="button"
+                              alt="Remove"
+                              className="text-[#ff0040be] text-sm font-semibold rounded-md px-3 py-2 border border-[#ff0040be]"
+                              onClick={() => props.onCancelInvite(customer.id)}
+                            >
+                              Huỷ
+                            </button> */}
+                          {/* <button
                         type="button"
                         alt="Remove"
                         className="text-[#ff0040be] text-sm font-semibold rounded-md px-3 py-2 border border-[#ff0040be]"
@@ -654,10 +680,10 @@ const Invite = (props) => {
                       >
                         Huỷ
                       </button> */}
+                        </div>
                       </div>
-                    </div>
-                  </li>
-                ))}
+                    </li>
+                  ))}
               </ul>
             </div>
           </div>

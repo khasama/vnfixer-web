@@ -167,7 +167,6 @@ const Picked = () => {
     let res;
     try {
       const takenRes = await vnfixerAPI.getTakedRequest();
-      console.log(takenRes);
       if (takenRes.status == 200) {
         res = takenRes.data.data;
       }
@@ -176,7 +175,6 @@ const Picked = () => {
     }
     if (res == null) {
       const takedRequest = await vnfixerAPI.pickRequestStaff(id);
-      console.log(takedRequest);
       getMyRequest();
       toast.success("Đã nhận yêu cầu");
     } else {

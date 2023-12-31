@@ -44,7 +44,7 @@ export default function Auth() {
   const [categoryId, setCategoryId] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [description, setDescription] = useState("");
-  const [agencyAvatar, setAgencyAvatar] = useState("");
+  const [agencyAvatar, setAgencyAvatar] = useState(srcAgency);
   const [avatar, setAvatar] = useState(
     currentUser?.avatar?.length > 0 ? currentUser?.avatar : srcTemp
   );
@@ -99,9 +99,8 @@ export default function Auth() {
         return agency.name;
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agency]);
-
-  // console.log(agencyName, agencyAvatar, categoryId, description, categoryName);
 
   const handleUserCancel = () => {
     setUserDisable(true);
@@ -180,7 +179,7 @@ export default function Auth() {
                 : "bg-login"
             }`}
           ></div>
-          <div className="row d-flex justify-content-center align-items-center p-3 lg:p-10">
+          <div className="p-3 lg:p-10">
             <div className="bg-white opacity-90 shadow-xl relative w-full md:w-2/3 mx-auto px-6 py-16 lg:p-10 rounded-xl flex flex-col sm:flex-row sm:items-start items-center  flex-wrap gap-1 sm:gap-0 min-h-[60vh]">
               <div className="text-white flex flex-col w-1/4 sm:pr-2">
                 <div className="mx-auto text-center">
@@ -351,7 +350,7 @@ export default function Auth() {
       {logged && (
         <>
           <Toaster position="top-center" />
-          <div className=" row d-flex justify-content-center align-items-center p-3 lg:p-10">
+          <div className="p-3 lg:p-10">
             <div className="bg-white opacity-90 shadow-xl relative w-full md:w-2/3 mx-auto px-6 py-16 lg:p-10 rounded-xl flex flex-col sm:flex-row sm:items-start items-center  flex-wrap gap-1 sm:gap-0 min-h-[60vh]">
               <div className="text-white flex flex-col w-1/4 sm:pr-2">
                 <div className="mx-auto text-center">

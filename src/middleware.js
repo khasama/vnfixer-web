@@ -21,6 +21,7 @@ export function middleware(request) {
     token = cookies?.access_token;
     decoded = jwtDecode(token);
   }
+
   if (
     request.url.includes("/manage/manager") &&
     decoded.agencyRole != "MANAGER"
@@ -29,7 +30,14 @@ export function middleware(request) {
     url.pathname = "/";
     return NextResponse.redirect(url);
   }
+
   if (request.url.includes("/manage/staff") && !decoded.agencyRole) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+
+  if (request.url.includes("/create_agency") && decoded?.agencyRole) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);

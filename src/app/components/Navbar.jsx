@@ -19,7 +19,7 @@ const navLinks = [
   },
   {
     title: "Trở thành đối tác",
-    path: "/agency",
+    path: "/create_agency",
   },
   {
     title: "Dịch vụ",
@@ -55,6 +55,7 @@ const Navbar = () => {
         <Link
           href={"/"}
           className="text-2xl md:text-5xl text-black font-semibold"
+          shallow
         >
           <Image
             alt="VNFIXER-LOGO"
@@ -92,6 +93,7 @@ const Navbar = () => {
               {!user?.agencyRole?.length > 0 ? (
                 <Link
                   href={"tel:0342246435"}
+                  shallow
                   className="flex justify-center items-center gap-2 border border-[#4694EF] hover:border-[#326bac] text-[#4694EF] font-bold py-2 px-8 rounded-full"
                 >
                   Hotline <PhoneIcon width={15}></PhoneIcon>
@@ -103,6 +105,7 @@ const Navbar = () => {
                       ? "/manage/staff"
                       : "/manage/manager"
                   }`}
+                  shallow
                   className="flex justify-center items-center gap-2 border bg-[#4694EF] hover:border-[#326bac] text-white font-bold py-2 px-8 rounded-full"
                 >
                   {user?.agencyRole == "STAFF"
@@ -113,7 +116,7 @@ const Navbar = () => {
             </li>
             <li>
               {!login ? (
-                <Link href={"/login"}>
+                <Link href={"/login"} shallow>
                   <button className="block bg-[#4694EF] hover:bg-[#2c5b92] text-white font-bold py-2 px-8 rounded-full">
                     Đăng nhập
                   </button>
@@ -157,7 +160,11 @@ const Navbar = () => {
                       role="menuitem"
                       className="hover:underline block w-full cursor-pointer select-none rounded-md px-3 pt-[9px] pb-2 text-start leading-tight transition-all hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
                     >
-                      <Link onClick={() => setHidden(true)} href={"/profile"}>
+                      <Link
+                        onClick={() => setHidden(true)}
+                        href={"/profile"}
+                        shallow
+                      >
                         <b>Hồ Sơ</b>
                       </Link>
                     </li>
@@ -178,6 +185,7 @@ const Navbar = () => {
                         <Link
                           onClick={() => setHidden(true)}
                           href={"/my_request"}
+                          shallow
                         >
                           Yêu cầu của tôi
                         </Link>
@@ -191,6 +199,7 @@ const Navbar = () => {
                         <b>
                           <Link
                             onClick={() => setHidden(true)}
+                            shallow
                             href={`${
                               user?.agencyRole == "STAFF"
                                 ? "/manage/staff"

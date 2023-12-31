@@ -321,9 +321,9 @@ export const RequestItemManager = (props) => {
             {props.status}
           </div>
         </div>
-        <div className="w-2/3 shrink-0 hidden lg:block">
+        <div className="w-2/3 shrink-0 hidden lg:block text-sm">
           {props?.branch?.agency?.name && props?.branch?.agency?.name + " - "}
-          {props?.branch?.city && props?.branch?.city}
+          {props?.branch?.city && "Chi Nhánh: " + props?.branch?.city}
         </div>
       </div>
       <div className="lg:w-3/12 w-full">

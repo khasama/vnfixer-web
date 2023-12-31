@@ -102,7 +102,7 @@ const FilterSide = (props) => {
               <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />{" "}
             </svg>
           </button>
-          <ul className="dropdown-menu absolute hidden rounded-lg text-gray-700 pt-1 z-10 shadow-lg w-full scrollbar overflow-y-scroll overscroll-x-none">
+          <ul className="dropdown-menu absolute hidden rounded-lg text-gray-700 pt-1 z-10 shadow-lg h-[300px] w-full scrollbar overflow-y-scroll overscroll-x-none">
             {cities.map((city, index) => (
               <li
                 onClick={() => props.onchangeCity(city)}

@@ -6,9 +6,10 @@ import TippyWrap from "./Tippy";
 
 const CardCategory = ({ imgUrl, title, description, gitUrl }) => {
   return (
-    <Link href={`/category/${gitUrl}`}>
+    <>
+      {/* <Link href={`/category/${gitUrl}`} shallow> */}
       <Image
-      loading="lazy"
+        loading="lazy"
         src={imgUrl}
         alt={title}
         width={0}
@@ -22,7 +23,8 @@ const CardCategory = ({ imgUrl, title, description, gitUrl }) => {
           <p className="text-[#73777a] text">{description}</p>
         </TippyWrap>
       </div>
-    </Link>
+      {/* </Link> */}
+    </>
   );
 };
 

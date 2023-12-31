@@ -37,6 +37,16 @@ const vnfixerAPI = {
     const url = `/requests/me`;
     return instance.get(url);
   },
+  //Invite
+  getMyInvite: () => {
+    const url = `/users/staff-request`;
+    return instance.get(url);
+  },
+  replyInvite: (action, data) => {
+    const url = `/users/staff-request?action=${action}`;
+    return instance.put(url, data);
+  },
+
   //Categories
   getCategories: () => {
     const url = `/categories`;
@@ -78,6 +88,10 @@ const vnfixerAPI = {
     const url = `/agencies/${id}`;
     return instance.get(url);
   },
+  createAgency: (data) => {
+    const url = `/agencies`;
+    return instance.post(url, data);
+  },
   updateAgency: (id, data) => {
     const url = `/agencies/${id}`;
     return instance.put(url, data);
@@ -115,6 +129,14 @@ const vnfixerAPI = {
   getStaffs: () => {
     const url = `/branches/staffs`;
     return instance.get(url);
+  },
+  getCustomer: (mail) => {
+    const url = `/users?email=${mail}`;
+    return instance.get(url);
+  },
+  inviteCustomer: (data) => {
+    const url = `/branches/add-staff`;
+    return instance.post(url, data);
   },
   removeStaff: (id) => {
     const url = `branches/remove-staff/${id}`;

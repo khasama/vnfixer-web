@@ -21,18 +21,6 @@ import FormRequest from "./FormRequest";
 
 const Banner = () => {
   const dispatch = useDispatch();
-  const router = useRouter();
-  const categories = useSelector(categoriesSelector);
-  const [province, setProvince] = useState("");
-  const [device, setDevice] = useState("");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [isValidEmail, setIsValidEmail] = useState(true);
-  const [phone, setPhone] = useState("");
-  const [date, setDate] = useState(dayjs());
-  const isLoggedIn = useSelector(isLoggedInSelector);
 
   useEffect(() => {
     const getAllCategory = () => {
@@ -45,75 +33,6 @@ const Banner = () => {
     getAllCategory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const clearData = () => {
-    setProvince("");
-    setDevice("");
-    setTitle("");
-    setDescription("");
-    setFullName("");
-    setEmail("");
-    setIsValidEmail(true);
-    setPhone("");
-    setDate(dayjs());
-  };
-
-  const handleChangeEmail = (event) => {
-    const { value } = event.target;
-    setEmail(value);
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    setIsValidEmail(emailRegex.test(value));
-  };
-
-  const handleChangeProvince = (event) => {
-    setProvince(event.target.value);
-  };
-
-  const handleChangeDevice = (event) => {
-    setDevice(event.target.value);
-    const titleFiltered = categories?.filter(
-      (item) => item.id === event.target.value
-    );
-    setTitle(titleFiltered[0].name);
-  };
-
-  const handleSubmit = () => {
-    if (isLoggedIn) {
-      if (
-        fullName.length > 0 &&
-        province.length > 0 &&
-        phone.length > 0 &&
-        dayjs(date).format("YYYY-MM-DD").length > 0
-      ) {
-        const data = {
-          description: description,
-          location: province,
-          expectDate: [dayjs(date).format("YYYY-MM-DD")],
-          categoryId: 3,
-          city: province,
-          customerPhone: phone,
-          customerName: fullName,
-          customerEmail: email,
-          title: title,
-        };
-        try {
-          vnfixerAPI.sendRequest(data);
-          clearData();
-        } catch (error) {
-          toast.error("Có lỗi xảy ra, vui lòng thử lại sau!");
-          throw rejectWithValue(error);
-        }
-        toast.success("Yêu cầu của bạn đã được gửi đi");
-      } else {
-        toast.error("Vui lòng nhập đủ thông tin cần thiết!");
-      }
-    } else {
-      toast.error("Vui lòng đăng nhập để gửi yêu cầu!");
-      setTimeout(() => {
-        router.push("/login");
-      }, 1000);
-    }
-  };
 
   return (
     <div className="min-h-[50vh]">
