@@ -98,7 +98,7 @@ function LoginPage() {
               }}
             >
               Bạn chưa có tài khoản?
-              <Link className="text-blue-500 pl-3" href="/register">
+              <Link className="text-blue-500 pl-3" href="/register" shallow>
                 Đăng ký
               </Link>
             </Typography>

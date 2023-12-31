@@ -49,7 +49,11 @@ const MyRequest = () => {
       <div className="px-3 py-5 bg-[#3484e0] rounded-lg">
         <ol className="flex items-center " aria-label="Breadcrumb">
           <li className="inline-flex items-center">
-            <Link className="flex items-start text-base text-white" href="/">
+            <Link
+              className="flex items-start text-base text-white"
+              href="/"
+              shallow
+            >
               <svg
                 className="flex-shrink-0 me-1 h-5 w-5"
                 xmlns="http://www.w3.org/2000/svg"
