@@ -25,7 +25,6 @@ function LoginPage() {
   useEffect(() => {
     if (messageError.length > 0) {
       notify();
-      isLoggedIn && router.push("/");
     }
   }, [key]);
 

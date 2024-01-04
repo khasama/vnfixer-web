@@ -15,7 +15,7 @@ const categorySlice = createSlice({
 });
 
 export const getCategories = createAsyncThunk(
-  "category/getcategories",
+  "category/getCategories",
   async (_, { rejectWithValue }) => {
     try {
       const res = await vnfixerAPI.getCategories();

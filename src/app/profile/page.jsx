@@ -3,8 +3,6 @@ import { updateUser } from "../redux/reducers/auth";
 import { unwrapResult } from "@reduxjs/toolkit";
 import React, { useEffect, useState } from "react";
 import {
-  FaEye,
-  FaEyeSlash,
   FaInfo,
   FaMapMarkerAlt,
   FaPhoneAlt,
@@ -23,7 +21,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import vnfixerAPI from "../api/vnfixerApi";
-import { FaReadme } from "react-icons/fa6";
 import { getCategories } from "../redux/reducers/category";
 
 export default function Auth() {
@@ -92,11 +89,11 @@ export default function Auth() {
   useEffect(() => {
     if (agency) {
       setAgencyName(() => {
-        setCategoryId(agency.categoryId);
-        setDescription(agency.description);
-        setCategoryName(agency.category.name);
+        setCategoryId(agency?.categoryId);
+        setDescription(agency?.description);
+        setCategoryName(agency?.category?.name);
         setAgencyAvatar(agency?.logo?.length > 0 ? agency?.logo : srcAgency);
-        return agency.name;
+        return agency?.name;
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -108,17 +105,17 @@ export default function Auth() {
     setPhone(currentUser?.phone);
     setAddress(currentUser?.address);
     setEmail(currentUser?.email);
-    setAvatar(currentUser?.avatar?.length > 0 ? currentUser.avatar : srcTemp);
+    setAvatar(currentUser?.avatar?.length > 0 ? currentUser?.avatar : srcTemp);
   };
   const handleAgencyCancel = () => {
     setAgencyDisable(true);
     if (agency) {
       setAgencyName(() => {
-        setCategoryId(agency.categoryId);
-        setDescription(agency.description);
-        setCategoryName(agency.category.name);
+        setCategoryId(agency?.categoryId);
+        setDescription(agency?.description);
+        setCategoryName(agency?.category?.name);
         setAgencyAvatar(agency?.logo?.length > 0 ? agency?.logo : srcAgency);
-        return agency.name;
+        return agency?.name;
       });
     }
   };
@@ -350,7 +347,10 @@ export default function Auth() {
       {logged && (
         <>
           <Toaster position="top-center" />
-          <div className="p-3 lg:p-10">
+          <div
+            className={`${currentUser?.agencyRole !== "MANAGER" && "bg-login"}`}
+          ></div>
+          <div className={`p-3 lg:p-10`}>
             <div className="bg-white opacity-90 shadow-xl relative w-full md:w-2/3 mx-auto px-6 py-16 lg:p-10 rounded-xl flex flex-col sm:flex-row sm:items-start items-center  flex-wrap gap-1 sm:gap-0 min-h-[60vh]">
               <div className="text-white flex flex-col w-1/4 sm:pr-2">
                 <div className="mx-auto text-center">

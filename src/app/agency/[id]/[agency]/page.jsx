@@ -54,7 +54,11 @@ const Agency = ({ params }) => {
       <div className="px-3 py-5 bg-[#3484e0] rounded-lg">
         <ol className="flex items-center " aria-label="Breadcrumb">
           <li className="inline-flex items-center">
-            <Link className="flex items-start text-base text-white" href="/" shallow>
+            <Link
+              className="flex items-start text-base text-white"
+              href="/"
+              shallow
+            >
               <svg
                 className="flex-shrink-0 me-1 h-5 w-5"
                 xmlns="http://www.w3.org/2000/svg"
@@ -136,7 +140,7 @@ const Agency = ({ params }) => {
             <div className="w-5/12 mx-auto">
               <Image
                 className="rounded-md"
-                src={require("../../../../../public/images/header.jpg")}
+                src={require("../../../../../public/images/1699.jpg")}
                 height={0}
                 width={500}
                 alt="Agency"

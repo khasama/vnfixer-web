@@ -20,30 +20,20 @@ export default function MessageForm({ onClose }) {
     });
   };
 
-  const handleAccept = async (id) => {
+  const handleReply = async (action, id) => {
     const data = {
       requestId: id,
     };
     try {
-      const res = await vnfixerAPI.replyInvite("ACCEPT", data);
+      const res = await vnfixerAPI.replyInvite(action, data);
       if (res.status == 200) {
         getInvite();
-        dispatch(logout())
-          .then(unwrapResult)
-          .catch((err) => console.log(err));
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const handleReject = async (id) => {
-    const data = {
-      requestId: id,
-    };
-    try {
-      const res = await vnfixerAPI.replyInvite("REJECT", data);
-      if (res.status == 200) {
-        getInvite();
+        if (action == "ACCEPT") {
+          dispatch(logout())
+            .then(unwrapResult)
+            .catch((err) => console.log(err));
+          setShowModal(false);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -54,12 +44,10 @@ export default function MessageForm({ onClose }) {
     if (currentUser && !currentUser?.agencyRole) {
       try {
         const res = await vnfixerAPI.getMyInvite();
-        console.log(res.data.data);
         if (res.status == 200) {
           const filtered = res?.data?.data?.filter(
             (item) => item.status == "PENDING"
           );
-          console.log(filtered);
           setInvites(filtered);
         }
       } catch (error) {
@@ -69,9 +57,9 @@ export default function MessageForm({ onClose }) {
   };
 
   useEffect(() => {
-    getInvite();
+    currentUser && getInvite();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentUser]);
 
   return (
     <>
@@ -115,13 +103,13 @@ export default function MessageForm({ onClose }) {
                           <div className="items-center gap-2 sm:flex">
                             <button
                               className="w-full mt-2 py-2 flex-1 text-white bg-blue-600 rounded-md outline-none ring-offset-2 ring-blue-600 focus:ring-2"
-                              onClick={() => handleAccept(invite?.id)}
+                              onClick={() => handleReply("ACCEPT", invite?.id)}
                             >
                               Chấp nhận
                             </button>
                             <button
                               className="w-full mt-2 py-2 flex-1 text-gray-800 rounded-md outline-none border ring-offset-2 ring-indigo-600 focus:ring-2"
-                              onClick={() => handleReject(invite?.id)}
+                              onClick={() => handleReply("REJECT", invite?.id)}
                             >
                               Từ chối
                             </button>

@@ -59,8 +59,6 @@ const AgencyCreate = () => {
     });
   };
 
-  console.log(agencyName, agencyDescription, agencyAddress, categoryId, city);
-
   const handleCreateAgency = async () => {
     if (!currentUser?.agencyRole) {
       if (isLoggedIn) {
@@ -113,7 +111,6 @@ const AgencyCreate = () => {
         });
     };
     getAllCategory();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -36,7 +36,7 @@ const Agencies = () => {
     getAllCategory();
     const getAgencies = async () => {
       try {
-        const response = await vnfixerAPI.getAgenciesBy();
+        const response = await vnfixerAPI.getAgencies(6, 1);
         if (response.status == 200) {
           setAgencies(response.data.data);
         }
