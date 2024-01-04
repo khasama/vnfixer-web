@@ -44,16 +44,18 @@ const FormRequest = ({ id, cityBy, onSubmit }) => {
   }, []);
 
   const clearData = () => {
-    onSubmit(false);
-    setProvince("");
-    setDevice("");
-    setTitle("");
-    setDescription("");
-    setFullName("");
-    setEmail("");
-    setIsValidEmail(true);
-    setPhone("");
-    setDate(dayjs());
+    typeof onSubmit == "function" && onSubmit(false);
+    setDate(() => {
+      setProvince("");
+      setDevice("");
+      setTitle("");
+      setDescription("");
+      setFullName("");
+      setEmail("");
+      setIsValidEmail(true);
+      setPhone("");
+      return dayjs();
+    });
   };
 
   const handleChangeEmail = (event) => {
@@ -75,19 +77,23 @@ const FormRequest = ({ id, cityBy, onSubmit }) => {
     setTitle(titleFiltered[0].name);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isLoggedIn) {
       if (
-        (cityBy.length > 0 && province.length > 0) ||
+        (cityBy?.length > 0 && province?.length > 0) ||
         (fullName.length > 0 &&
+          description.length > 0 &&
+          email.length > 0 &&
+          province.length > 0 &&
+          device.length > 0 &&
           phone.length > 0 &&
           dayjs(date).format("YYYY-MM-DD").length > 0)
       ) {
         const data = {
           description: description,
-          location: cityBy.length > 0 ? cityBy : province,
+          location: cityBy?.length > 0 ? cityBy : province,
           expectDate: [dayjs(date).format("YYYY-MM-DD")],
-          categoryId: 3,
+          categoryId: device,
           city: province,
           customerPhone: phone,
           customerName: fullName,
@@ -98,14 +104,13 @@ const FormRequest = ({ id, cityBy, onSubmit }) => {
           if (id > 0 && cityBy?.length > 0) {
             data.branchId = id;
             data.city = cityBy;
-            vnfixerAPI.sendRequestById(data);
+            await vnfixerAPI.sendRequestById(data);
           } else {
-            vnfixerAPI.sendRequest(data);
+            await vnfixerAPI.sendRequest(data);
           }
           clearData();
         } catch (error) {
           toast.error("Có lỗi xảy ra, vui lòng thử lại sau!");
-          throw rejectWithValue(error);
         }
         toast.success("Yêu cầu của bạn đã được gửi đi");
       } else {

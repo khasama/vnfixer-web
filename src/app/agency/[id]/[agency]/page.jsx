@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useSelector } from "react-redux";
 import { categoriesSelector } from "@/app/redux/selectors";
 import Link from "next/link";
-import { FaListUl, FaLocationDot, FaMinus } from "react-icons/fa6";
+import { FaBuilding, FaListUl, FaLocationDot, FaMinus } from "react-icons/fa6";
 import CardAgency from "@/app/components/CardAgency";
 import FormRequest from "@/app/components/FormRequest";
 import { Toaster } from "react-hot-toast";
@@ -54,7 +54,11 @@ const Agency = ({ params }) => {
       <div className="px-3 py-5 bg-[#3484e0] rounded-lg">
         <ol className="flex items-center " aria-label="Breadcrumb">
           <li className="inline-flex items-center">
-            <Link className="flex items-start text-base text-white" href="/">
+            <Link
+              className="flex items-start text-base text-white"
+              href="/"
+              shallow
+            >
               <svg
                 className="flex-shrink-0 me-1 h-5 w-5"
                 xmlns="http://www.w3.org/2000/svg"
@@ -91,6 +95,7 @@ const Agency = ({ params }) => {
             <Link
               className="flex items-start text-base text-white"
               href="/agency"
+              shallow
             >
               <svg
                 className="flex-shrink-0 me-1 h-5 w-5"
@@ -135,7 +140,7 @@ const Agency = ({ params }) => {
             <div className="w-5/12 mx-auto">
               <Image
                 className="rounded-md"
-                src={require("../../../../../public/images/header.jpg")}
+                src={require("../../../../../public/images/1699.jpg")}
                 height={0}
                 width={500}
                 alt="Agency"
@@ -207,7 +212,7 @@ const Agency = ({ params }) => {
                 >
                   <div className="w-2/3">
                     <p className="text-lg flex items-center gap-2 flex-row">
-                      <FaLocationDot className="text-[#4694EF]" />
+                      <FaBuilding className="text-[#4694EF]" />
                       {branch.city}
                     </p>
                     <p className="text-lg flex items-center gap-2 flex-row">

@@ -5,13 +5,12 @@ import NavLink from "./NavLink";
 import { Bars3Icon, XMarkIcon, PhoneIcon } from "@heroicons/react/24/solid";
 import MenuOverlay from "./MenuOverlay";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import logo01 from "../../../public/images/logo01.png";
 import { useDispatch, useSelector } from "react-redux";
 import { currentUserSelector, isLoggedInSelector } from "../redux/selectors";
 import { logout } from "../redux/reducers/auth";
 import { unwrapResult } from "@reduxjs/toolkit";
-import MessageForm from "./MessageForm/MessageForm";
+import MessageForm from "./MessageForm";
 
 const navLinks = [
   {
@@ -20,7 +19,7 @@ const navLinks = [
   },
   {
     title: "Trở thành đối tác",
-    path: "/agency",
+    path: "/create_agency",
   },
   {
     title: "Dịch vụ",
@@ -31,16 +30,12 @@ const navLinks = [
 const Navbar = () => {
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [login, setLogin] = useState(false);
+  const [user, setUser] = useState();
   const [hidden, setHidden] = useState(true);
   const [showMessage, setShowMessage] = useState(false);
   const isLoggedIn = useSelector(isLoggedInSelector);
   const currentUser = useSelector(currentUserSelector);
   const dispatch = useDispatch();
-  const router = useRouter();
-
-  // const handleSign = () => {
-  //   router.push("/login");
-  // };
 
   const handleLogOut = () => {
     setHidden(true);
@@ -51,7 +46,8 @@ const Navbar = () => {
 
   useEffect(() => {
     setLogin(isLoggedIn);
-  }, [isLoggedIn]);
+    setUser(currentUser);
+  }, [isLoggedIn, currentUser]);
 
   return (
     <div className="border-t-8 border-nav-top top-0 left-0 right-0 z-10 bg-[#ffff] bg-opacity-100">
@@ -59,6 +55,7 @@ const Navbar = () => {
         <Link
           href={"/"}
           className="text-2xl md:text-5xl text-black font-semibold"
+          shallow
         >
           <Image
             alt="VNFIXER-LOGO"
@@ -93,16 +90,33 @@ const Navbar = () => {
               </li>
             ))}
             <li>
-              <Link
-                href={"tel:0342246435"}
-                className="flex justify-center items-center gap-2 border border-[#4694EF] hover:border-[#326bac] text-[#4694EF] font-bold py-2 px-8 rounded-full"
-              >
-                Hotline <PhoneIcon width={15}></PhoneIcon>
-              </Link>
+              {!user?.agencyRole?.length > 0 ? (
+                <Link
+                  href={"tel:0342246435"}
+                  shallow
+                  className="flex justify-center items-center gap-2 border border-[#4694EF] hover:border-[#326bac] text-[#4694EF] font-bold py-2 px-8 rounded-full"
+                >
+                  Hotline <PhoneIcon width={15}></PhoneIcon>
+                </Link>
+              ) : (
+                <Link
+                  href={`${
+                    user?.agencyRole == "STAFF"
+                      ? "/manage/staff"
+                      : "/manage/manager"
+                  }`}
+                  shallow
+                  className="flex justify-center items-center gap-2 border bg-[#4694EF] hover:border-[#326bac] text-white font-bold py-2 px-8 rounded-full"
+                >
+                  {user?.agencyRole == "STAFF"
+                    ? "Quản lý yêu cầu"
+                    : "Quản lý chi nhánh"}
+                </Link>
+              )}
             </li>
             <li>
               {!login ? (
-                <Link href={"/login"}>
+                <Link href={"/login"} shallow>
                   <button className="block bg-[#4694EF] hover:bg-[#2c5b92] text-white font-bold py-2 px-8 rounded-full">
                     Đăng nhập
                   </button>
@@ -112,6 +126,12 @@ const Navbar = () => {
                   {hidden && (
                     <div className="absolute top-3 right-2  bg-red-500 w-2 h-2 rounded-full"></div>
                   )}
+                  {!hidden && (
+                    <div
+                      className="fixed inset-0 w-full h-full"
+                      onClick={() => setHidden(!hidden)}
+                    ></div>
+                  )}
                   <button
                     data-ripple-light="true"
                     data-popover-target="menu"
@@ -120,8 +140,8 @@ const Navbar = () => {
                   >
                     <Image
                       src={
-                        currentUser.avatar
-                          ? currentUser.avatar
+                        currentUser?.avatar
+                          ? currentUser?.avatar
                           : require("../../../public/images/default.png")
                       }
                       alt={"avatar"}
@@ -140,7 +160,11 @@ const Navbar = () => {
                       role="menuitem"
                       className="hover:underline block w-full cursor-pointer select-none rounded-md px-3 pt-[9px] pb-2 text-start leading-tight transition-all hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
                     >
-                      <Link href={"/profile"}>
+                      <Link
+                        onClick={() => setHidden(true)}
+                        href={"/profile"}
+                        shallow
+                      >
                         <b>Hồ Sơ</b>
                       </Link>
                     </li>
@@ -158,13 +182,37 @@ const Navbar = () => {
                       className="hover:underline block w-full cursor-pointer select-none rounded-md px-3 pt-[9px] pb-2 text-start leading-tight transition-all hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
                     >
                       <b>
-                        {currentUser?.agencyRole?.length > 0 ? (
-                          <Link href={"/manage"}>Quản lý yêu cầu</Link>
-                        ) : (
-                          <Link href={"/my_request"}>Yêu cầu của tôi</Link>
-                        )}
+                        <Link
+                          onClick={() => setHidden(true)}
+                          href={"/my_request"}
+                          shallow
+                        >
+                          Yêu cầu của tôi
+                        </Link>
                       </b>
                     </li>
+                    {currentUser?.agencyRole?.length > 0 && (
+                      <li
+                        role="menuitem"
+                        className="hover:underline block w-full cursor-pointer select-none rounded-md px-3 pt-[9px] pb-2 text-start leading-tight transition-all hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
+                      >
+                        <b>
+                          <Link
+                            onClick={() => setHidden(true)}
+                            shallow
+                            href={`${
+                              user?.agencyRole == "STAFF"
+                                ? "/manage/staff"
+                                : "/manage/manager"
+                            }`}
+                          >
+                            {user?.agencyRole == "STAFF"
+                              ? "Quản lý yêu cầu"
+                              : "Quản lý chi nhánh"}
+                          </Link>
+                        </b>
+                      </li>
+                    )}
                     <li
                       onClick={handleLogOut}
                       role="menuitem"

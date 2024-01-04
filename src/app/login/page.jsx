@@ -25,7 +25,6 @@ function LoginPage() {
   useEffect(() => {
     if (messageError.length > 0) {
       notify();
-      isLoggedIn && router.push("/");
     }
   }, [key]);
 
@@ -98,7 +97,7 @@ function LoginPage() {
               }}
             >
               Bạn chưa có tài khoản?
-              <Link className="text-blue-500 pl-3" href="/register">
+              <Link className="text-blue-500 pl-3" href="/register" shallow>
                 Đăng ký
               </Link>
             </Typography>

@@ -4,7 +4,7 @@ import logo01 from "../../../public/images/logo01.png";
 
 const Footer = () => {
   return (
-    <footer className="rounded-lg shadow m-4 bg-[#152930e3] border z-10 border-t-[#33353F]">
+    <footer className="rounded-lg shadow m-4 bg-[#152930e3] border z-50 border-t-[#33353F]">
       <div className="w-full max-w-screen-xl mx-auto p-4 md:py-8">
         <div className="sm:flex sm:items-center sm:justify-between">
           <a
@@ -45,7 +45,7 @@ const Footer = () => {
         <hr className="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
         <span className="block text-sm text-gray-300 sm:text-center">
           © 2023
-          <a href="https://flowbite.com/" className="hover:underline">
+          <a href="#" className="hover:underline">
             VNFIXER™
           </a>
           . All Rights Reserved.

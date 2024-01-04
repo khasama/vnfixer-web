@@ -13,8 +13,6 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(login.fulfilled, (state, action) => {
-        console.log(action.payload?.user);
-        console.log(action.payload);
         state.messageError = "";
         if (action.payload?.user) {
           state.isLoggedIn = true;
@@ -38,8 +36,11 @@ const authSlice = createSlice({
         Cookies.set("INFO", JSON.stringify(state.currentUser));
       })
       .addCase(updateUser.fulfilled, (state, action) => {
-        state.currentUser = action.payload;
-        Cookies.set("INFO", JSON.stringify(state.currentUser));
+        if (action.payload?.user) {
+          state.isLoggedIn = true;
+          state.currentUser = action.payload?.user;
+          Cookies.set("INFO", JSON.stringify(state.currentUser));
+        }
       });
   },
 });
@@ -62,6 +63,7 @@ export const login = createAsyncThunk(
           agencyRole: response?.agencyRole ?? "",
           branchId: response?.branchId ?? "",
           role: response?.role ?? "",
+          agencyId: response?.branch?.agencyId ?? "",
         };
         return { user };
       }
@@ -126,30 +128,51 @@ export const refreshToken = createAsyncThunk(
 export const updateUser = createAsyncThunk(
   "auth/updateUser",
   async (data, { rejectWithValue }) => {
-    console.log(data);
     try {
-      const formData = new FormData();
-      if (avatar) {
-        formData.append("avatar", avatar.base64);
-      }
-      formData.append("idUser", id);
-      formData.append("username", username);
-      formData.append("email", email);
-      const res = await instance.post(`/user/update`, formData);
+      const res = await instance.put(`/users/information`, data);
       if (res.status === 200) {
-        if (res.data.status === "success") {
-          return res.data.data;
-        } else {
-          throw rejectWithValue(res.data.message);
-        }
+        const response = res.data;
+        const user = {
+          id: response?.id ?? "",
+          email: response?.email ?? "",
+          fullName: response?.fullName ?? "",
+          avatar: response?.imageUrl ?? "",
+          phone: response?.phone ?? "",
+          address: response?.address ?? "",
+          agencyRole: response?.agencyRole ?? "",
+          branchId: response?.branchId ?? "",
+          role: response?.role ?? "",
+          agencyId: response?.branch?.agencyId ?? "",
+        };
+        return { user };
       }
     } catch (error) {
-      if (error.payload) {
-        throw rejectWithValue(error.payload);
-      } else {
-        throw error;
-      }
+      console.log(error);
+      throw rejectWithValue(error.message);
     }
+    // try {
+    //   const formData = new FormData();
+    //   if (avatar) {
+    //     formData.append("avatar", avatar.base64);
+    //   }
+    //   formData.append("idUser", id);
+    //   formData.append("username", username);
+    //   formData.append("email", email);
+    //   const res = await instance.post(`/user/update`, formData);
+    //   if (res.status === 200) {
+    //     if (res.data.status === "success") {
+    //       return res.data.data;
+    //     } else {
+    //       throw rejectWithValue(res.data.message);
+    //     }
+    //   }
+    // } catch (error) {
+    //   if (error.payload) {
+    //     throw rejectWithValue(error.payload);
+    //   } else {
+    //     throw error;
+    //   }
+    // }
   }
 );
 

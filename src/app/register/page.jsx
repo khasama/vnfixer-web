@@ -107,7 +107,7 @@ function RegisterPage() {
               }}
             >
               Bạn đã có tài khoản?
-              <Link className="text-blue-500 pl-3" href="/login">
+              <Link className="text-blue-500 pl-3" href="/login" shallow>
                 Đăng nhập
               </Link>
             </Typography>

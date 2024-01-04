@@ -41,7 +41,6 @@ export const getProvinces = createAsyncThunk(
 export const getDistricts = createAsyncThunk(
   "location/getDistricts",
   async (province, { rejectWithValue }) => {
-    console.log(province);
     try {
       const res = await vnfixerAPI.getAllDistrict(province);
       if (res.status === 200) {
