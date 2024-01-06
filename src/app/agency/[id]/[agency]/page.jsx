@@ -255,6 +255,7 @@ const Agency = ({ params }) => {
                   <FormRequest
                     id={id4Request}
                     cityBy={city}
+                    categoryId={agency?.category?.id}
                     onSubmit={setShowForm}
                   ></FormRequest>
                 </div>

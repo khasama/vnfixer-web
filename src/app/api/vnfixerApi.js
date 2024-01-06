@@ -110,6 +110,27 @@ const vnfixerAPI = {
     })}`;
     return instance.get(url);
   },
+  getRequestManagerForBranch: ({
+    limit = "10",
+    page = "1",
+    category,
+    city,
+    status,
+    branchId,
+  }) => {
+    const query = {
+      ...{ limit },
+      ...{ page },
+      ...(category && { category }),
+      ...(city && { city }),
+      ...(status && { status }),
+      ...(branchId && { branchId }),
+    };
+    const url = `/requests?${queryString.stringify({
+      ...query,
+    })}`;
+    return instance.get(url);
+  },
   pickRequestManager: (id) => {
     const url = `/requests/pick/${id}`;
     return instance.put(url);
