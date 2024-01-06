@@ -279,7 +279,7 @@ export default function Auth() {
                                   onClick={() =>
                                     setCategoryId(() => {
                                       setCategoryName(category.name);
-                                      return category.categoryId;
+                                      return category.id;
                                     })
                                   }
                                   key={index}

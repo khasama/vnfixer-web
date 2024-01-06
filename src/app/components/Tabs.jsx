@@ -134,7 +134,11 @@ const Tabs = () => {
           <div className="px-4 py-5 flex-auto">
             <div className="tab-content tab-space">
               <div
-                className={openTab === 1 ? "flex gap-3 " : "hidden"}
+                className={
+                  openTab === 1
+                    ? "flex gap-3 md:flex-row flex-col md:items-start items-center"
+                    : "hidden"
+                }
                 id="link1"
               >
                 <FilterSide
@@ -157,7 +161,11 @@ const Tabs = () => {
                 <StaffTab></StaffTab>
               </div>
               <div
-                className={openTab === 3 ? "flex gap-3" : "hidden"}
+                className={
+                  openTab === 3
+                    ? "flex gap-3 justify-center items-center flex-wrap"
+                    : "hidden"
+                }
                 id="link3"
               >
                 <BranchTab
@@ -317,12 +325,13 @@ const BranchTab = () => {
       setAddress(address);
       setCity(city);
       setAgencyId(agencyId);
+      setAction(true);
       return id;
     });
   };
   const handleShowCreateBranch = () => {
     setShowModal(() => {
-      setAction(!action);
+      setAction(false);
       return !showModal;
     });
   };
@@ -360,25 +369,24 @@ const BranchTab = () => {
           <FaPlus></FaPlus> Thêm Chi Nhánh
         </Button>
       </div>
-      <div className="w-full grid grid-cols-3 gap-3 max-h-[100vh] overflow-auto scrollbar">
+      <div className="w-full grid md:grid-cols-2 gap-3 max-h-[100vh] overflow-auto scrollbar">
         {branches?.map((branch) => (
           <div
-            className="rounded-md shadow-lg p-4 hover:shadow-md flex flex-row"
+            className="rounded-md shadow-lg p-4 hover:shadow-md flex md:flex-row flex-col gap-2"
             key={branch.id}
           >
-            <div className="w-2/3 flex flex-col gap-3">
+            <div className="md:w-2/3 w-full flex flex-col gap-3">
               <p className="text-lg flex items-center gap-2 flex-row">
                 <FaBuilding className="text-[#4694EF]" />
                 {branch.city}
               </p>
-              <p className="text-lg flex items-start gap-2 flex-row">
-                <FaLocationDot className="text-[#4694EF]" />
+              <p className="text-lg flex items-start flex-row">
                 {branch.address}
               </p>
             </div>
-            <div className="w-1/3 flex items-center gap-2">
+            <div className="md:w-1/3 w-full flex items-center gap-2">
               <button
-                className="bg-[#FFD333] hover:bg-[#ac9132] text-black font-bold py-2 px-3 rounded"
+                className="bg-[#FFD333] hover:bg-[#ac9132] text-black text-sx md:text-sm font-bold py-2 px-3 rounded"
                 onClick={() =>
                   handleBranchUpdate(
                     branch.id,
@@ -460,14 +468,14 @@ const BranchTab = () => {
                     onClick={() => handleCreate()}
                     className="bg-lightBlue-400 px-4 py-3 rounded-md text-white font-semibold"
                   >
-                    Tạo
+                    Cập nhật
                   </Button>
                 ) : (
                   <Button
                     onClick={() => handleUpdate()}
                     className="bg-lightBlue-400 px-4 py-3 rounded-md text-white font-semibold"
                   >
-                    Cập nhật
+                    Tạo
                   </Button>
                 )}
               </div>
@@ -541,10 +549,10 @@ const StaffTab = () => {
           <FaCheck></FaCheck> Đã mời
         </Button>
       </div>
-      <ul className="grid md:grid-cols-4 gap-x-2 m-5">
+      <ul className="grid md:grid-cols-3 sm:grid-cols-2 grid-rows-1 gap-x-2 m-5">
         {staffs?.map((staff) => (
           <li key={staff.id} className="shadow-lg rounded-md px-3 py-2">
-            <div className="w-full flex flex-col md:flex-row max-h-[100vh] overflow-auto scrollbar">
+            <div className="w-full flex flex-col md:flex-row max-h-[100vh] flex-wrap overflow-auto scrollbar">
               <Image
                 loading="lazy"
                 src={
@@ -558,7 +566,7 @@ const StaffTab = () => {
                 sizes="20vw"
                 style={{ width: "20%", height: "auto", margin: "auto" }}
               ></Image>
-              <div className="text-[#484848] rounded-b-xl mt-3 px-5 pt-2 pb-5">
+              <div className="text-[#484848] rounded-b-xl mt-3 p-3">
                 <ul>
                   <li className="text-sm font-semibold mb-2 flex flex-row items-center gap-3">
                     <FaAt className="text-gray-500"></FaAt> {staff.email}

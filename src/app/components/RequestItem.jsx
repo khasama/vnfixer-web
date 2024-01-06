@@ -20,8 +20,8 @@ const RequestItem = (props) => {
     }
   };
   return (
-    <div className="px-4 py-2 bg-white shadow-md w-full rounded-md flex flex-col md:flex-row items-center gap-2">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full lg:w-4/12">
+    <div className="px-4 py-2 bg-white shadow-md w-full rounded-md flex flex-col md:flex-row items-center gap-2 flex-wrap">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full lg:w-6/12">
         <div className="">
           <span className="md:text-sm text-xs">Tiêu đề:</span>
           <b className="md:text-sm text-xs"> {props.title}</b>
@@ -62,7 +62,7 @@ const RequestItem = (props) => {
           {props?.branch?.city && props?.branch?.city}
         </div>
       </div>
-      <div className="lg:w-3/12 w-full">
+      <div className="w-full">
         <div className="grid grid-col-1 gap-2">
           <div className="flex items-center gap-5">
             <div className="flex items-center gap-1 text-blue-700 underline text-sm">
@@ -153,8 +153,8 @@ export const RequestItemStaff = (props) => {
     }
   };
   return (
-    <div className="px-4 py-2 bg-white shadow-md w-full rounded-md flex flex-col md:flex-row items-center gap-2">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full lg:w-4/12">
+    <div className="px-4 py-2 bg-white shadow-md w-full rounded-md flex flex-col md:flex-row items-center gap-2 flex-wrap">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full lg:w-6/12">
         <div className="">
           <span className="md:text-sm text-xs">Tiêu đề:</span>
           <b className="md:text-sm text-xs"> {props.title}</b>
@@ -195,7 +195,7 @@ export const RequestItemStaff = (props) => {
           {props?.branch?.city && props?.branch?.city}
         </div>
       </div>
-      <div className="lg:w-3/12 w-full">
+      <div className="w-full">
         <div className="grid grid-col-1 gap-2">
           <div className="flex items-center gap-5">
             <div className="flex items-center gap-1 text-blue-700 underline text-sm">
@@ -247,7 +247,7 @@ export const RequestItemStaff = (props) => {
                     </svg>
                   </button>
                   <ul className="dropdown-menu absolute hidden rounded-lg text-gray-700 pt-1 z-10 shadow-lg w-full scrollbar overflow-y-scroll overscroll-x-none">
-                    {requestStaffStatus.map((item, index) => (
+                    {requestStaffStatus?.map((item, index) => (
                       <li
                         onClick={() => props.onChangeStatus(props.id, item)}
                         key={index}
@@ -284,8 +284,8 @@ export const RequestItemManager = (props) => {
     }
   };
   return (
-    <div className="px-4 py-2 bg-white shadow-md w-full rounded-md flex flex-col md:flex-row items-center gap-2">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full lg:w-4/12">
+    <div className="px-4 py-2 bg-white shadow-md w-full rounded-md flex flex-col md:flex-row items-center gap-2 flex-wrap">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full lg:w-6/12">
         <div className="">
           <span className="md:text-sm text-xs">Tiêu đề:</span>
           <b className="md:text-sm text-xs"> {props.title}</b>
@@ -326,7 +326,7 @@ export const RequestItemManager = (props) => {
           {props?.branch?.city && "Chi Nhánh: " + props?.branch?.city}
         </div>
       </div>
-      <div className="lg:w-3/12 w-full">
+      <div className="w-full">
         <div className="grid grid-col-1 gap-2">
           <div className="flex items-center gap-5">
             <div className="flex items-center gap-1 text-blue-700 underline text-sm">

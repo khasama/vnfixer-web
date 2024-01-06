@@ -2,13 +2,15 @@
 import vnfixerAPI from "@/app/api/vnfixerApi";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { categoriesSelector } from "@/app/redux/selectors";
 import Link from "next/link";
 import { FaBuilding, FaListUl, FaLocationDot, FaMinus } from "react-icons/fa6";
 import CardAgency from "@/app/components/CardAgency";
 import FormRequest from "@/app/components/FormRequest";
 import { Toaster } from "react-hot-toast";
+import { unwrapResult } from "@reduxjs/toolkit";
+import { getCategories } from "@/app/redux/reducers/category";
 
 export const metadata = {
   title: "VNFIXER | Agency",
@@ -16,6 +18,7 @@ export const metadata = {
 
 const Agency = ({ params }) => {
   const [agency, setAgency] = useState({});
+  const dispatch = useDispatch();
   const [showForm, setShowForm] = useState(false);
   const [id4Request, setId4Request] = useState("");
   const [city, setCity] = useState("");
@@ -47,6 +50,18 @@ const Agency = ({ params }) => {
     };
     getAgency();
   }, [params]);
+
+  useEffect(() => {
+    const getAllCategory = () => {
+      dispatch(getCategories())
+        .then(unwrapResult)
+        .catch((err) => {
+          alert(err.message);
+        });
+    };
+    getAllCategory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="container mx-auto">
@@ -203,7 +218,7 @@ const Agency = ({ params }) => {
             </div>
           </div>
           <div className="agency p-3">
-            <h2 className="text-2xl font-bold">Chi nhánh của {title}</h2>
+            <h2 className="text-xl font-bold">Chi nhánh của {title}</h2>
             <div className="grid grid-cols-3 gap-3">
               {agency?.branches?.map((branch) => (
                 <div
@@ -222,7 +237,7 @@ const Agency = ({ params }) => {
                   </div>
                   <div className="w-1/3">
                     <button
-                      className="bg-[#FFD333] hover:bg-[#ac9132] text-black font-bold py-3 px-8 rounded"
+                      className="bg-[#FFD333] hover:bg-[#ac9132] text-black text-sm font-bold p-2 rounded"
                       onClick={() => handleShowForm(branch.id, branch.city)}
                     >
                       Tạo yêu cầu

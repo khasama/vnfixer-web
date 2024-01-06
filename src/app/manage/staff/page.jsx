@@ -87,14 +87,14 @@ const Manager = () => {
             <li className="flex flex-row gap-4 items-start">
               <FaBuilding className="text-[#4694EF]"></FaBuilding>
 
-              <p>{inf?.agency?.name}</p>
+              <p>{user?.agencyName}</p>
             </li>
             <li className="flex flex-row gap-4 items-center">
               <FaLocationDot className="text-[#4694EF]"></FaLocationDot>
-              <p>{inf?.city}</p>
+              <p>{user?.city}</p>
             </li>
             <li className="flex flex-row gap-4 items-center">
-              <p>{inf?.address}</p>
+              <p>{user?.branchAddress}</p>
             </li>
           </ul>
         </div>
@@ -192,22 +192,26 @@ const Picked = () => {
         <FaRotateRight className="text-white"></FaRotateRight>
       </button>
       <div className="w-full flex flex-col gap-3 max-h-[100vh] overflow-auto scrollbar">
-        {takeReq?.map((request) => (
-          <RequestItemStaff
-            key={request.id}
-            id={request.id}
-            title={request.title}
-            description={request.description}
-            city={request.city}
-            expectDate={request.expectDate}
-            createdAt={request.createdAt}
-            status={request.status}
-            customerName={request.customerName}
-            category={request.category}
-            branch={request.branch}
-            onPick={handlePickRequest}
-          ></RequestItemStaff>
-        ))}
+        {takeReq?.length !== 0 ? (
+          takeReq?.map((request) => (
+            <RequestItemStaff
+              key={request.id}
+              id={request.id}
+              title={request.title}
+              description={request.description}
+              city={request.city}
+              expectDate={request.expectDate}
+              createdAt={request.createdAt}
+              status={request.status}
+              customerName={request.customerName}
+              category={request.category}
+              branch={request.branch}
+              onPick={handlePickRequest}
+            ></RequestItemStaff>
+          ))
+        ) : (
+          <p>Bạn có chưa yêu cầu nào</p>
+        )}
       </div>
     </>
   );

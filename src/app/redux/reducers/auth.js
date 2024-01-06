@@ -65,7 +65,8 @@ export const login = createAsyncThunk(
           role: response?.role ?? "",
           city: response?.branch?.city ?? "",
           agencyId: response?.branch?.agencyId ?? "",
-          categoryId: response?.branch?.agency?.categoryId ?? "",
+          agencyName: response?.branch?.agency?.name ?? "",
+          branchAddress: response?.branch?.address ?? "",
         };
         return { user };
       }
@@ -147,6 +148,8 @@ export const updateUser = createAsyncThunk(
           city: response?.branch?.city ?? "",
           agencyId: response?.branch?.agencyId ?? "",
           categoryId: response?.branch?.agency?.categoryId ?? "",
+          agencyName: response?.branch?.agency?.name ?? "",
+          branchAddress: response?.branch?.address ?? "",
         };
         return { user };
       }

@@ -78,7 +78,6 @@ const FormRequest = ({ id, cityBy, categoryId = 0, onSubmit }) => {
   };
 
   const handleSubmit = async () => {
-    console.log({ fullName, description, email, province, device, phone });
     if (isLoggedIn) {
       if (
         (cityBy?.length > 0 && province?.length > 0) ||
@@ -237,12 +236,12 @@ const FormRequest = ({ id, cityBy, categoryId = 0, onSubmit }) => {
               <Select
                 labelId="demo-simple-select-standard-label"
                 id="demo-simple-select-standard"
-                value={device}
+                value={device ? device : categoryId}
                 onChange={(e) => handleChangeDevice(e)}
                 label="device"
                 disabled={categoryId > 0}
               >
-                {categories &&
+                {categories?.length > 0 &&
                   categories.map((category, index) => {
                     return (
                       <MenuItem key={index} value={category.id}>

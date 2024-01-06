@@ -62,7 +62,7 @@ const Navbar = () => {
             width={200}
             height={0}
             src={logo01}
-            priority
+            blurDataURL={logo01}
           ></Image>
         </Link>
         <div className="mobile-menu z-50 block md:hidden">
@@ -154,7 +154,7 @@ const Navbar = () => {
                     data-popover="menu"
                     data-popover-placement="bottom"
                     hidden={hidden}
-                    className="absolute z-10 min-w-[170px] overflow-auto rounded-md border border-blue-gray-50 bg-white p-3 font-sans text-sm font-normal text-blue-gray-500 shadow-lg shadow-blue-gray-500/10 focus:outline-none "
+                    className="absolute right-0 z-10 min-w-[170px] overflow-auto rounded-md border border-blue-gray-50 bg-white p-3 font-sans text-sm font-normal text-blue-gray-500 shadow-lg shadow-blue-gray-500/10 focus:outline-none "
                   >
                     <li
                       role="menuitem"
