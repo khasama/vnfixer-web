@@ -6,6 +6,15 @@ import { cities, requestStatus } from "../constants";
 
 const FilterSide = (props) => {
   const categories = useSelector(categoriesSelector);
+  const [city, setCity] = useState("Tỉnh thành");
+  const [disabled, setDisabled] = useState(false);
+
+  useEffect(() => {
+    setCity(() => {
+      setDisabled(props.disabled);
+      return props?.city;
+    });
+  }, [props]);
 
   return (
     <div className="bg-white p-4 h-[90vh] rounded-lg shadow-lg w-[20em]">
@@ -25,6 +34,7 @@ const FilterSide = (props) => {
                       checked={category.id == props.selectedCheckbox}
                       onChange={() => props.onchangeCategory(category.id)}
                       type="checkbox"
+                      disabled={props?.disabled}
                       className="before:content[''] peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-blue-gray-200 transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity checked:border-gray-900 checked:bg-gray-900 checked:before:bg-gray-900 hover:before:opacity-10"
                     />
                     <span className="absolute text-white transition-opacity opacity-0 pointer-events-none top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 peer-checked:opacity-100">
@@ -91,9 +101,7 @@ const FilterSide = (props) => {
       <div className="w-full my-3">
         <div className="dropdown inline-block relative w-full">
           <button className="bg-white shadow-2xl text-gray-700 font-semibold py-2 px-4 rounded-md inline-flex items-center w-full">
-            <span className="mr-1">
-              {props?.city?.length > 0 ? props.city : "Tỉnh thành"}
-            </span>
+            <span className="mr-1">{city} </span>
             <svg
               className="fill-current h-4 w-4"
               xmlns="http://www.w3.org/2000/svg"
@@ -102,17 +110,19 @@ const FilterSide = (props) => {
               <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />{" "}
             </svg>
           </button>
-          <ul className="dropdown-menu absolute hidden rounded-lg text-gray-700 pt-1 z-10 shadow-lg h-[300px] w-full scrollbar overflow-y-scroll overscroll-x-none">
-            {cities.map((city, index) => (
-              <li
-                onClick={() => props.onchangeCity(city)}
-                key={index}
-                className="rounded-t bg-white hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap cursor-pointer"
-              >
-                {city}
-              </li>
-            ))}
-          </ul>
+          {!disabled ? (
+            <ul className="dropdown-menu absolute hidden rounded-lg text-gray-700 pt-1 z-10 shadow-lg h-[300px] w-full scrollbar overflow-y-scroll overscroll-x-none">
+              {cities.map((city, index) => (
+                <li
+                  onClick={() => props.onchangeCity(city)}
+                  key={index}
+                  className="rounded-t bg-white hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap cursor-pointer"
+                >
+                  {city}
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
       </div>
     </div>

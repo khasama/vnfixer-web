@@ -12,6 +12,8 @@ import {
   FaAt,
   FaBuilding,
   FaCheck,
+  FaCircleNodes,
+  FaCircleNotch,
   FaCircleUser,
   FaHandHoldingHand,
   FaLocationDot,
@@ -28,9 +30,14 @@ import { debounce } from "lodash";
 
 const Tabs = () => {
   const [openTab, setOpenTab] = useState(1);
+  const currentUser = useSelector(currentUserSelector);
   const dispatch = useDispatch();
-  const [city, setCity] = useState("");
-  const [selectedCheckbox, setSelectedCheckbox] = useState(null);
+  const [city, setCity] = useState(
+    currentUser?.city?.length > 0 ? currentUser?.city : ""
+  );
+  const [selectedCheckbox, setSelectedCheckbox] = useState(
+    currentUser?.categoryId > 0 ? currentUser?.categoryId : null
+  );
   const [status, setStatus] = useState("PENDING");
 
   useEffect(() => {
@@ -137,10 +144,12 @@ const Tabs = () => {
                   selectedCheckbox={selectedCheckbox}
                   status={status}
                   onChangeStatus={setStatus}
+                  disabled={true}
                 ></FilterSide>
                 <RequestTab
                   city={city}
                   selectedCheckbox={selectedCheckbox}
+                  branchId={currentUser.branchId}
                   status={status}
                 ></RequestTab>
               </div>
@@ -167,23 +176,51 @@ const Tabs = () => {
 
 const RequestTab = (props) => {
   const [requests, setRequests] = useState();
+  const [forBranch, setForBranch] = useState(false);
+
   const getManagerReq = async () => {
-    const data = {
+    setForBranch(false);
+    let data = {
       limit: "10",
       page: "1",
       category: props.selectedCheckbox,
       city: props.city,
       status: props.status,
     };
+    if (props?.branchId) {
+      data.branchId = props.branchId;
+    }
     const res = await vnfixerAPI.getRequestManager(data);
+    if (res.status == 200) {
+      setRequests(res?.data?.data?.entries);
+    }
+  };
+  const getManagerReq4Branch = async () => {
+    setForBranch(true);
+    let data = {
+      limit: "10",
+      page: "1",
+      category: props.selectedCheckbox,
+      city: props.city,
+      status: props.status,
+    };
+    if (props?.branchId) {
+      data.branchId = props.branchId;
+    }
+    const res = await vnfixerAPI.getRequestManagerForBranch(data);
     if (res.status == 200) {
       setRequests(res?.data?.data?.entries);
     }
   };
 
   useEffect(() => {
-    getManagerReq();
-  }, [props]);
+    if (forBranch) {
+      getManagerReq4Branch();
+    } else {
+      getManagerReq();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props, forBranch]);
 
   const handlePickRequest = async (id) => {
     const res = await vnfixerAPI.pickRequestManager(id);
@@ -195,23 +232,47 @@ const RequestTab = (props) => {
   };
 
   return (
-    <div className="w-full flex flex-col gap-5 max-h-[100vh] overflow-auto scrollbar">
-      {requests?.map((request) => (
-        <RequestItemManager
-          key={request.id}
-          id={request.id}
-          title={request.title}
-          description={request.description}
-          city={request.city}
-          expectDate={request.expectDate}
-          createdAt={request.createdAt}
-          status={request.status}
-          customerName={request.customerName}
-          category={request.category}
-          branch={request.branch}
-          onPick={handlePickRequest}
-        ></RequestItemManager>
-      ))}
+    <div className="flex flex-col w-full">
+      <div className="flex gap-4 items-center">
+        <Button
+          className="px-3 py-2 rounded-md bg-sky-400 mx-5 text-white flex items-center gap-3"
+          type={"button"}
+          alt={"Đang chờ"}
+          onClick={() => getManagerReq()}
+        >
+          <FaCircleNotch></FaCircleNotch> Đang chờ
+        </Button>
+        <Button
+          className="px-3 py-2 rounded-md bg-green-400 mx-5 text-white flex items-center gap-3"
+          type={"button"}
+          alt={"Chi nhánh"}
+          onClick={() => getManagerReq4Branch()}
+        >
+          <FaCircleNodes></FaCircleNodes> Chi Nhánh
+        </Button>
+      </div>
+      <div className="p-4 flex items-center gap-5">
+        {forBranch ? <b>Yêu cầu của chi nhánh</b> : <b>Yêu cầu đang chờ</b>}
+        <small> {` (${requests?.length} Yêu cầu)`}</small>
+      </div>
+      <div className="w-full flex flex-col gap-5 max-h-[100vh] overflow-auto scrollbar">
+        {requests?.map((request) => (
+          <RequestItemManager
+            key={request.id}
+            id={request.id}
+            title={request.title}
+            description={request.description}
+            city={request.city}
+            expectDate={request.expectDate}
+            createdAt={request.createdAt}
+            status={request.status}
+            customerName={request.customerName}
+            category={request.category}
+            branch={request.branch}
+            onPick={handlePickRequest}
+          ></RequestItemManager>
+        ))}
+      </div>
     </div>
   );
 };

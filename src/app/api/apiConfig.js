@@ -1,3 +1,5 @@
+// export const baseURL =
+//   "https://077f-2405-4802-95d0-a426-b0a7-d68b-92f2-dc8a.ngrok-free.app/";
 export const baseURL = "http://localhost:5000/api/";
 const provideURL = "https://provinces.open-api.vn/api/p/";
 import axios from "axios";

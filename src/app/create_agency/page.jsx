@@ -323,7 +323,7 @@ const AgencyCreate = () => {
           />
           <FormControl variant="standard" className="w-10/12">
             <InputLabel id="demo-simple-select-standard-label">
-              Thiết bị
+              Dịch vụ
             </InputLabel>
             <Select
               labelId="demo-simple-select-standard-label"

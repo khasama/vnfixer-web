@@ -178,7 +178,7 @@ const Agencies = () => {
 
             {selectedCheckbox > 0 ? (
               <p className="rounded-2xl bg-[#499cfbc2] px-3 py-2 text-white">
-                Thiết bị:{title}
+                Dịch vụ:{title}
               </p>
             ) : (
               ""

@@ -40,7 +40,7 @@ const Manager = () => {
     try {
       const takeRes = await vnfixerAPI.getTakeRequest();
       if (takeRes.status == 200) {
-        setInf(takeRes.data.data[0].branch);
+        setInf(takeRes?.data?.data[0]?.branch);
       }
     } catch (error) {
       console.log(error);

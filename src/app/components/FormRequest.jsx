@@ -16,12 +16,12 @@ import vnfixerAPI from "../api/vnfixerApi";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-const FormRequest = ({ id, cityBy, onSubmit }) => {
+const FormRequest = ({ id, cityBy, categoryId = 0, onSubmit }) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const categories = useSelector(categoriesSelector);
-  const [province, setProvince] = useState("");
-  const [device, setDevice] = useState("");
+  const [province, setProvince] = useState(cityBy?.length > 0 ? cityBy : "");
+  const [device, setDevice] = useState(categoryId > 0 ? categoryId : "");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [fullName, setFullName] = useState("");
@@ -78,6 +78,7 @@ const FormRequest = ({ id, cityBy, onSubmit }) => {
   };
 
   const handleSubmit = async () => {
+    console.log({ fullName, description, email, province, device, phone });
     if (isLoggedIn) {
       if (
         (cityBy?.length > 0 && province?.length > 0) ||
@@ -85,7 +86,7 @@ const FormRequest = ({ id, cityBy, onSubmit }) => {
           description.length > 0 &&
           email.length > 0 &&
           province.length > 0 &&
-          device.length > 0 &&
+          device > 0 &&
           phone.length > 0 &&
           dayjs(date).format("YYYY-MM-DD").length > 0)
       ) {
@@ -98,7 +99,7 @@ const FormRequest = ({ id, cityBy, onSubmit }) => {
           customerPhone: phone,
           customerName: fullName,
           customerEmail: email,
-          title: title,
+          title: title?.length > 0 ? title : description,
         };
         try {
           if (id > 0 && cityBy?.length > 0) {
@@ -231,7 +232,7 @@ const FormRequest = ({ id, cityBy, onSubmit }) => {
             </svg>
             <FormControl variant="standard" className="w-10/12">
               <InputLabel id="demo-simple-select-standard-label">
-                Thiết bị
+                Dịch vụ
               </InputLabel>
               <Select
                 labelId="demo-simple-select-standard-label"
@@ -239,6 +240,7 @@ const FormRequest = ({ id, cityBy, onSubmit }) => {
                 value={device}
                 onChange={(e) => handleChangeDevice(e)}
                 label="device"
+                disabled={categoryId > 0}
               >
                 {categories &&
                   categories.map((category, index) => {
