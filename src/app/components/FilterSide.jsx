@@ -17,7 +17,7 @@ const FilterSide = (props) => {
   }, [props]);
 
   return (
-    <div className="bg-white p-4 h-[90vh] rounded-lg shadow-lg w-[20em]">
+    <div className="bg-white p-4 min-h-[90vh] rounded-lg shadow-lg w-[20em]">
       <div className="mb-4">
         <div className="flex flex-col">
           <b className="px-3 text-gray-700">1. Dịch vụ</b>

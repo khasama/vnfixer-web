@@ -173,8 +173,7 @@ const AgencyCreate = () => {
                         </div>
                         <div className="col-12 col-lg-8 font-weight-bold text-center text-lg-left text-nowrap h6 h5-xl">
                           <div className="h4 font-weight-bold m-0"> 300+ </div>
-                          <div className="pb-0 pb-lg-2" /> Chi nhánh trên cả
-                          nước
+                          <div className="pb-0 pb-lg-2" /> Chi nhánh
                         </div>
                       </div>
                     </div>
@@ -189,7 +188,7 @@ const AgencyCreate = () => {
                         </div>
                         <div className="">
                           <div className="h4 font-weight-bold m-0"> 800+ </div>
-                          <div className="pb-0 pb-lg-2" /> Người dùng hàng tháng
+                          <div className="pb-0 pb-lg-2" /> Người dùng
                         </div>
                       </div>
                     </div>
@@ -213,7 +212,7 @@ const AgencyCreate = () => {
         id="formCreate"
         className="bg-white shadow-xl w-full rounded-xl flex flex-col p-10 lg:flex-row items-center flex-wrap lg:max-w-[80%] mx-auto lg:gap-0 gap-5"
       >
-        <div className="w-3/6 flex flex-col items-center justify-center gap-5 rounded-md shadow-md px-3">
+        <div className="w-3/6 flex flex-col items-start justify-center gap-5 rounded-md shadow-md px-3">
           <div className="flex flex-col md:flex-row justify-center gap-3">
             <Image
               src={"/images/qr.jpg"}
@@ -321,7 +320,7 @@ const AgencyCreate = () => {
             value={agencyAddress}
             onChange={(e) => setAgencyAddress(e.target.value)}
           />
-          <FormControl variant="standard" className="w-10/12">
+          <FormControl fullWidth variant="standard" className="w-10/12">
             <InputLabel id="demo-simple-select-standard-label">
               Dịch vụ
             </InputLabel>
@@ -342,14 +341,14 @@ const AgencyCreate = () => {
                 })}
             </Select>
           </FormControl>
-          <div class="relative w-10/12 bg-slate-100 rounded-md">
+          <div className="relative w-full bg-slate-100 rounded-md">
             <textarea
               value={agencyDescription}
               onChange={(e) => setAgencyDescription(e.target.value)}
-              class="peer px-4 h-full min-h-[100px] w-full resize-none border-b border-blue-gray-200 bg-transparent font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border-blue-gray-200 focus:border-gray-900 focus:outline-0 disabled:resize-none disabled:border-0 disabled:bg-blue-gray-50"
+              className="peer px-4 h-full min-h-[100px] w-full resize-none border-b border-blue-gray-200 bg-transparent font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border-blue-gray-200 focus:border-gray-900 focus:outline-0 disabled:resize-none disabled:border-0 disabled:bg-blue-gray-50"
               placeholder=" "
             ></textarea>
-            <label class="after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-normal leading-tight text-blue-gray-500 transition-all after:absolute after:-bottom-0 after:block after:w-full after:scale-x-0 after:border-b-2 after:border-gray-900 after:transition-transform after:duration-300 peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[4.25] peer-placeholder-shown:text-blue-gray-500 peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:after:scale-x-100 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
+            <label className="after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-normal leading-tight text-blue-gray-500 transition-all after:absolute after:-bottom-0 after:block after:w-full after:scale-x-0 after:border-b-2 after:border-gray-900 after:transition-transform after:duration-300 peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[4.25] peer-placeholder-shown:text-blue-gray-500 peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:after:scale-x-100 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
               Mô tả
             </label>
           </div>

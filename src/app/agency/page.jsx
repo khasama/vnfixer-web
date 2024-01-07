@@ -215,7 +215,7 @@ const Agencies = () => {
                   <Image
                     width={0}
                     height={0}
-                    priority
+                    blurDataURL={spinner}
                     src={spinner}
                     alt="Follow us on Twitter"
                   />

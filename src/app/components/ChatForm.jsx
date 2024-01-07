@@ -91,8 +91,8 @@ export const Chat = () => {
               </div>
             </div>
             <div className="flex flex-col flex-grow h-0 overflow-auto scrollbar px-3">
-              {messages?.map((message) => (
-                <>
+              {messages?.map((message, index) => (
+                <React.Fragment key={index}>
                   {message?.user == "bot" ? (
                     <div className="flex w-full mt-2 space-x-3 max-w-xs">
                       <div>
@@ -122,7 +122,7 @@ export const Chat = () => {
                       </div>
                     </div>
                   )}
-                </>
+                </React.Fragment>
               ))}
 
               {compos && (
