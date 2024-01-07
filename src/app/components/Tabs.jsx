@@ -465,14 +465,14 @@ const BranchTab = () => {
               <div className="flex items-center justify-center py-3">
                 {action ? (
                   <Button
-                    onClick={() => handleCreate()}
+                    onClick={() => handleUpdate()}
                     className="bg-lightBlue-400 px-4 py-3 rounded-md text-white font-semibold"
                   >
                     Cập nhật
                   </Button>
                 ) : (
                   <Button
-                    onClick={() => handleUpdate()}
+                    onClick={() => handleCreate()}
                     className="bg-lightBlue-400 px-4 py-3 rounded-md text-white font-semibold"
                   >
                     Tạo
