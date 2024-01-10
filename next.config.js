@@ -9,7 +9,21 @@ const nextConfig = {
         pathname: "**",
       },
     ],
+    formats: ["image/avif", "image/webp"],
+    domains: [
+      "img.freepik.com",
+      "images.pexels.com",
+      "localhost",
+      "static.vecteezy.com",
+      "us.123rf.com",
+      "i1.wp.com",
+    ],
   },
 };
 
-module.exports = nextConfig;
+module.exports = {
+  nextConfig,
+  env: {
+    customKey: "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",
+  },
+};

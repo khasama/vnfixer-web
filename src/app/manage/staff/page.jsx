@@ -78,6 +78,7 @@ const Manager = () => {
                 : "/images/logo.png"
             }
             alt={"Agency logo"}
+            unoptimized={inf?.agency?.logo?.length > 0}
             width={0}
             height={0}
             sizes="20vw"

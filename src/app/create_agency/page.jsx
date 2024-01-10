@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { cities } from "../constants";
+import { cities, cityDistrict } from "../constants";
 import {
   FaBuilding,
   FaLocationDot,
@@ -33,6 +33,7 @@ const AgencyCreate = () => {
   const categories = useSelector(categoriesSelector);
   const [agencyName, setAgencyName] = useState("");
   const [city, setCity] = useState("");
+  const [district, setDistrict] = useState("");
   const [agencyAddress, setAgencyAddress] = useState("");
   const [agencyDescription, setAgencyDescription] = useState("");
   const [agencyCategory, setAgencyCategory] = useState("");
@@ -295,6 +296,50 @@ const AgencyCreate = () => {
               id="demo-simple-select-standard"
               value={city}
               onChange={(e) => setCity(e.target.value)}
+              label="city"
+            >
+              {cityDistrict &&
+                cityDistrict.map((city, index) => {
+                  return (
+                    <MenuItem key={index} value={city.city}>
+                      {city.city}
+                    </MenuItem>
+                  );
+                })}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth variant="standard" className="w-10/12">
+            <InputLabel id="demo-simple-select-standard-label" required>
+              Quận/Huyện
+            </InputLabel>
+            <Select
+              labelId="demo-simple-select-standard-label"
+              id="demo-simple-select-standard"
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
+              label="district"
+            >
+              {city &&
+                cityDistrict
+                  ?.find((cityMap) => cityMap.city == city)
+                  ?.districts?.map((district, index) => {
+                    return (
+                      <MenuItem key={index} value={district}>
+                        {district}
+                      </MenuItem>
+                    );
+                  })}
+            </Select>
+          </FormControl>
+          {/* <FormControl fullWidth variant="standard" className="w-10/12">
+            <InputLabel id="demo-simple-select-standard-label" required>
+              Tỉnh/Thành
+            </InputLabel>
+            <Select
+              labelId="demo-simple-select-standard-label"
+              id="demo-simple-select-standard"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
               label="province"
             >
               {cities &&
@@ -306,7 +351,7 @@ const AgencyCreate = () => {
                   );
                 })}
             </Select>
-          </FormControl>
+          </FormControl> */}
           <TextField
             required
             fullWidth

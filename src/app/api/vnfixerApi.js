@@ -10,6 +10,11 @@ const vnfixerAPI = {
     const url = `${province}?depth=2`;
     return provinces.get(url);
   },
+  //ChatBot
+  chatBot: (data) => {
+    const url = `/chatbot/ask`;
+    return instance.post(url, data);
+  },
   //Request
   sendRequest: (params) => {
     const url = `/requests`;
@@ -95,6 +100,14 @@ const vnfixerAPI = {
   updateAgency: (id, data) => {
     const url = `/agencies/${id}`;
     return instance.put(url, data);
+  },
+  getAgencyPayment: (id) => {
+    const url = `/agencies/payment/${id}`;
+    return instance.get(url);
+  },
+  postAgencyPayment: (id, data) => {
+    const url = `/agencies/payment/${id}`;
+    return instance.post(url, data);
   },
   // Manage
   getRequestManager: ({ limit = "10", page = "1", category, city, status }) => {

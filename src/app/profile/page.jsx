@@ -183,6 +183,7 @@ export default function Auth() {
                     width={150}
                     height={0}
                     src={agencyAvatar}
+                    unoptimized={true}
                     alt="Generic placeholder"
                     className="img-fluid img-thumbnail mt-4 mb-2 rounded-xl"
                   />

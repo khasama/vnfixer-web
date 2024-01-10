@@ -25,8 +25,9 @@ import {
 import Image from "next/image";
 import ReactTimeAgo from "react-time-ago";
 import Button from "./Button";
-import { cities } from "../constants";
+import { cities, cityDistrict } from "../constants";
 import { debounce } from "lodash";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 const Tabs = () => {
   const [openTab, setOpenTab] = useState(1);
@@ -35,6 +36,7 @@ const Tabs = () => {
   const [city, setCity] = useState(
     currentUser?.city?.length > 0 ? currentUser?.city : ""
   );
+  const [district, setDistrict] = useState("");
   const [selectedCheckbox, setSelectedCheckbox] = useState(
     currentUser?.categoryId > 0 ? currentUser?.categoryId : null
   );
@@ -232,7 +234,6 @@ const RequestTab = (props) => {
 
   const handlePickRequest = async (id) => {
     const res = await vnfixerAPI.pickRequestManager(id);
-
     if (res.status == 200) {
       getManagerReq();
       toast.success("Đã nhận yêu cầu");
@@ -289,6 +290,7 @@ const BranchTab = () => {
   const currentUser = useSelector(currentUserSelector);
   const [showModal, setShowModal] = useState(false);
   const [city, setCity] = useState("");
+  const [district, setDistrict] = useState("");
   const [branchId, setBranchId] = useState("");
   const [agencyId, setAgencyId] = useState("");
   const [address, setAddress] = useState("");
@@ -309,6 +311,7 @@ const BranchTab = () => {
     const data = {
       agencyId: agencyId,
       address: address,
+      district: district,
       city: city,
     };
     const res = await vnfixerAPI.updateBranch(branchId, data);
@@ -319,11 +322,12 @@ const BranchTab = () => {
     }
   };
 
-  const handleBranchUpdate = (id, address, city, agencyId) => {
+  const handleBranchUpdate = (id, address, city, district, agencyId) => {
     setBranchId(() => {
       setShowModal(!showModal);
       setAddress(address);
       setCity(city);
+      setDistrict(district);
       setAgencyId(agencyId);
       setAction(true);
       return id;
@@ -339,6 +343,7 @@ const BranchTab = () => {
     const data = {
       city: city,
       address: address,
+      district: district,
       agencyId: agencyId,
     };
     const res = await vnfixerAPI.createBranch(data);
@@ -352,6 +357,8 @@ const BranchTab = () => {
   useEffect(() => {
     setAgencyId(() => {
       setAddress("");
+      setAddress("");
+      setDistrict("");
       setCity("");
       return branches && branches[0].agencyId;
     });
@@ -378,10 +385,13 @@ const BranchTab = () => {
             <div className="md:w-2/3 w-full flex flex-col gap-3">
               <p className="text-lg flex items-center gap-2 flex-row">
                 <FaBuilding className="text-[#4694EF]" />
-                {branch.city}
+                Thành phố: {branch.city}
               </p>
               <p className="text-lg flex items-start flex-row">
-                {branch.address}
+                Quận/Huyện: {branch.district}
+              </p>
+              <p className="text-lg flex items-start flex-row">
+                Địa chỉ: {branch.address}
               </p>
             </div>
             <div className="md:w-1/3 w-full flex items-center gap-2">
@@ -392,6 +402,7 @@ const BranchTab = () => {
                     branch.id,
                     branch.address,
                     branch.city,
+                    branch.district,
                     branch.agencyId
                   )
                 }
@@ -421,30 +432,51 @@ const BranchTab = () => {
               <p className="font-semibold text-lg py-2 px-4">
                 {action ? "Tạo mới chi nhánh" : "Cập nhật chi nhánh"}
               </p>
-              <div className="dropdown inline-block relative w-full">
-                <button className="bg-white shadow-2xl text-gray-700 font-semibold py-2 px-4 rounded-md inline-flex items-center w-full">
-                  <span className="mr-1">
-                    {city?.length > 0 ? city : "Tỉnh thành"}
-                  </span>
-                  <svg
-                    className="fill-current h-4 w-4"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
+              <div className="dropdown relative w-full flex md:flex-row flex-col gap-3">
+                <FormControl fullWidth variant="standard" className={`w-1/2`}>
+                  <InputLabel id="demo-simple-select-standard-label" required>
+                    Tỉnh/Thành
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-standard-label"
+                    id="demo-simple-select-standard"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    label="city"
                   >
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />{" "}
-                  </svg>
-                </button>
-                <ul className="dropdown-menu absolute hidden rounded-lg text-gray-700 pt-1 z-10 shadow-lg w-full scrollbar overflow-y-scroll overscroll-x-none">
-                  {cities.map((city, index) => (
-                    <li
-                      onClick={() => setCity(city)}
-                      key={index}
-                      className="rounded-t bg-white hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap cursor-pointer"
-                    >
-                      {city}
-                    </li>
-                  ))}
-                </ul>
+                    {cityDistrict &&
+                      cityDistrict.map((city, index) => {
+                        return (
+                          <MenuItem key={index} value={city.city}>
+                            {city.city}
+                          </MenuItem>
+                        );
+                      })}
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth variant="standard" className={`w-1/2`}>
+                  <InputLabel id="demo-simple-select-standard-label" required>
+                    Quận/Huyện
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-standard-label"
+                    id="demo-simple-select-standard"
+                    value={district}
+                    onChange={(e) => setDistrict(e.target.value)}
+                    label="district"
+                  >
+                    {city &&
+                      cityDistrict
+                        ?.find((cityMap) => cityMap.city == city)
+                        ?.districts?.map((district, index) => {
+                          return (
+                            <MenuItem key={index} value={district}>
+                              {district}
+                            </MenuItem>
+                          );
+                        })}
+                  </Select>
+                </FormControl>
               </div>
               <div>
                 <label
@@ -458,7 +490,7 @@ const BranchTab = () => {
                   rows={4}
                   onChange={(e) => setAddress(e.target.value)}
                   className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 "
-                  placeholder="Write your thoughts here..."
+                  placeholder="Địa chỉ chi nhánh..."
                   value={address}
                 />
               </div>
@@ -561,6 +593,7 @@ const StaffTab = () => {
                     : "/images/staff.png"
                 }
                 alt={staff.agencyRole}
+                unoptimized={staff?.imageUrl?.length > 0}
                 width={0}
                 height={0}
                 sizes="20vw"

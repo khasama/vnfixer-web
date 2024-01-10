@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { categoriesSelector } from "../redux/selectors";
 import { cities, requestStatus } from "../constants";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 const FilterSide = (props) => {
   const categories = useSelector(categoriesSelector);
@@ -99,7 +100,25 @@ const FilterSide = (props) => {
       <hr className="bg-warmGray-600 my-5" />
       <b className="px-3 text-gray-700">3. Tỉnh thành</b>
       <div className="w-full my-3">
-        <div className="dropdown inline-block relative w-full">
+        <FormControl variant="standard" className="w-10/12">
+          <InputLabel id="demo-simple-select-standard-label">
+            Thành phố
+          </InputLabel>
+          <Select
+            labelId="demo-simple-select-standard-label"
+            id="demo-simple-select-standard"
+            value={props.city}
+            onChange={(e) => props.onchangeCity(e.target.value)}
+            label="province"
+          >
+            {cities.map((city, index) => (
+              <MenuItem key={index} value={city}>
+                {city}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        {/* <div className="dropdown inline-block relative w-full">
           <button className="bg-white shadow-2xl text-gray-700 font-semibold py-2 px-4 rounded-md inline-flex items-center w-full">
             <span className="mr-1">{city} </span>
             <svg
@@ -123,7 +142,7 @@ const FilterSide = (props) => {
               ))}
             </ul>
           ) : null}
-        </div>
+        </div> */}
       </div>
     </div>
   );

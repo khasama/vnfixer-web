@@ -22,6 +22,7 @@ const CardAgency = ({
         alt={title}
         width={0}
         height={0}
+        unoptimized={imgUrl?.length > 0}
         sizes="100vw"
         loading="lazy"
       ></Image>

@@ -2,15 +2,15 @@
 import vnfixerAPI from "@/app/api/vnfixerApi";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { useDispatch, useSelector } from "react-redux";
-import { categoriesSelector } from "@/app/redux/selectors";
+import { useDispatch } from "react-redux";
 import Link from "next/link";
 import { FaBuilding, FaListUl, FaLocationDot, FaMinus } from "react-icons/fa6";
-import CardAgency from "@/app/components/CardAgency";
 import FormRequest from "@/app/components/FormRequest";
 import { Toaster } from "react-hot-toast";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { getCategories } from "@/app/redux/reducers/category";
+import CardAgency from "@/app/components/CardAgency";
+import { ImagePlacehoderSkeleton } from "@/app/components/Skeleton";
 
 export const metadata = {
   title: "VNFIXER | Agency",
@@ -18,6 +18,7 @@ export const metadata = {
 
 const Agency = ({ params }) => {
   const [agency, setAgency] = useState({});
+  const [agencies, setAgencies] = useState({});
   const dispatch = useDispatch();
   const [showForm, setShowForm] = useState(false);
   const [id4Request, setId4Request] = useState("");
@@ -25,7 +26,18 @@ const Agency = ({ params }) => {
   const title = decodeURIComponent((params.agency + "").replace(/\+/g, "%20"));
   const STAR_NUMBER = 5;
 
-  const handleShowForm = (id, city) => {
+  const getAgencies = async () => {
+    try {
+      const response = await vnfixerAPI.getAgencies(3, 1);
+      if (response.status == 200) {
+        setAgencies(response.data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleShowForm = (id, city, district) => {
     setShowForm((prevShowForm) => {
       setId4Request(id);
       setCity(city);
@@ -33,22 +45,24 @@ const Agency = ({ params }) => {
     });
   };
 
-  useEffect(() => {
-    const getAgency = async () => {
-      if (params.id.length > 0) {
-        try {
-          const res = await vnfixerAPI.getAgency(params.id);
-          if (res.status == 200) {
-            setAgency(res.data.data);
-          } else {
-            console.log("Error!");
-          }
-        } catch (error) {
-          console.log(error);
+  const getAgency = async () => {
+    if (params.id.length > 0) {
+      try {
+        const res = await vnfixerAPI.getAgency(params.id);
+        if (res.status == 200) {
+          setAgency(res.data.data);
+        } else {
+          console.log("Error!");
         }
+      } catch (error) {
+        console.log(error);
       }
-    };
+    }
+  };
+  useEffect(() => {
     getAgency();
+    getAgencies();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
   useEffect(() => {
@@ -152,16 +166,20 @@ const Agency = ({ params }) => {
       <div className="flex my-3 gap-3">
         <div className="w-full">
           <div className="flex flex-col lg:flex-row bg-[#f7fbff] rounded-lg shadow-xl p-5">
-            <div className="w-5/12 mx-auto">
+            <div className="md:w-5/12 w-full flex justify-center items-center">
               <Image
-                className="rounded-md"
-                src={require("../../../../../public/images/1699.jpg")}
+                className="rounded-md mx-auto"
+                src={
+                  agency?.logo ??
+                  require("../../../../../public/images/logo.png")
+                }
+                unoptimized={agency?.logo?.length > 0}
                 height={0}
-                width={500}
+                width={250}
                 alt="Agency"
               />
             </div>
-            <div className="content w-7/12">
+            <div className="content md:w-7/12 w-full">
               <h5 className="text-2xl font-semibold text-2 text-gray-700 py-5">
                 {agency.name}
               </h5>
@@ -205,7 +223,7 @@ const Agency = ({ params }) => {
               </div>
               <div className="flex flex-row gap-2 items-center text-lg">
                 <FaListUl className="text-[#4694EF]" />
-                <b className="text-base">Lĩnh vực:</b>
+                <b className="text-base">Dịch vụ:</b>
                 {agency?.category?.name}
               </div>
               <div>
@@ -218,33 +236,70 @@ const Agency = ({ params }) => {
             </div>
           </div>
           <div className="agency p-3">
-            <h2 className="text-xl font-bold">Chi nhánh của {title}</h2>
-            <div className="grid grid-cols-3 gap-3">
-              {agency?.branches?.map((branch) => (
-                <div
-                  className="rounded-md shadow-lg p-4 hover:shadow-md flex flex-row"
-                  key={branch.id}
-                >
-                  <div className="w-2/3">
-                    <p className="text-lg flex items-center gap-2 flex-row">
-                      <FaBuilding className="text-[#4694EF]" />
-                      {branch.city}
-                    </p>
-                    <p className="text-lg flex items-center gap-2 flex-row">
-                      <FaLocationDot className="text-[#4694EF]" />
-                      {branch.address}
-                    </p>
-                  </div>
-                  <div className="w-1/3">
-                    <button
-                      className="bg-[#FFD333] hover:bg-[#ac9132] text-black text-sm font-bold p-2 rounded"
-                      onClick={() => handleShowForm(branch.id, branch.city)}
+            <h2 className="text-xl font-bold py-2">Chi nhánh của {title}</h2>
+            <div className="md:grid md:grid-cols-3 grid-cols-1 gap-3 ">
+              {agency?.branches
+                ? agency?.branches?.map((branch) => (
+                    <div
+                      className="rounded-md shadow-lg p-4 hover:shadow-md flex md:flex-row flex-col gap-2"
+                      key={branch.id}
                     >
-                      Tạo yêu cầu
-                    </button>
-                  </div>
-                </div>
-              ))}
+                      <div className="md:w-2/3 w-full">
+                        <p className="font-semibold flex items-center gap-2 flex-row">
+                          <FaBuilding className="text-[#4694EF]" />
+                          {branch?.city}
+                        </p>
+                        <p className="flex items-center gap-2 flex-row">
+                          {branch?.district}
+                        </p>
+                        <p className="flex items-center gap-2 flex-row">
+                          {branch?.address}
+                        </p>
+                      </div>
+                      <div className="md:w-1/3 w-full">
+                        <button
+                          className="bg-[#FFD333] hover:bg-[#ac9132] text-black text-sm font-bold p-2 rounded"
+                          onClick={() =>
+                            handleShowForm(
+                              branch?.id,
+                              branch?.city,
+                              branch?.district
+                            )
+                          }
+                        >
+                          Tạo yêu cầu
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                : Array.from({ length: 3 }).map((_, i) => (
+                    <ImagePlacehoderSkeleton key={i}></ImagePlacehoderSkeleton>
+                  ))}
+            </div>
+          </div>
+          <div className="agency p-3">
+            <h2 className="text-xl font-bold py-2">Gợi ý cho bạn</h2>
+            <div className="md:grid md:grid-cols-3 grid-cols-1 gap-3 ">
+              {agencies && agencies.entries
+                ? agencies?.entries?.map((agency, index) => (
+                    <div
+                      className="rounded-md shadow-lg py-2 hover:shadow-md"
+                      key={index}
+                    >
+                      <CardAgency
+                        title={agency.name}
+                        branches={agency.branches.length}
+                        description={agency.description}
+                        city={agency.category.name}
+                        star={5}
+                        imgUrl={agency.logo}
+                        id={agency.id}
+                      />
+                    </div>
+                  ))
+                : Array.from({ length: 3 }).map((_, i) => (
+                    <ImagePlacehoderSkeleton key={i}></ImagePlacehoderSkeleton>
+                  ))}
             </div>
           </div>
         </div>
@@ -259,14 +314,6 @@ const Agency = ({ params }) => {
               ></div>
               <div className="flex items-center min-h-screen px-4 py-8">
                 <div className="relative flex flex-col items-center justify-center z-1 w-full p-4 mx-auto rounded-md">
-                  <div className="flex w-4/5 mx-5 md:mx-0 xl:w-1/2 justify-end items-end">
-                    <button
-                      className="w-fit mt-2 p-2.5 bg-[#3d2b2b5c] rounded-md outline-none ring-red-600 text-[#8f8e8edd]"
-                      onClick={() => setShowForm(false)}
-                    >
-                      <FaMinus></FaMinus>
-                    </button>
-                  </div>
                   <FormRequest
                     id={id4Request}
                     cityBy={city}
