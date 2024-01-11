@@ -15,6 +15,11 @@ const vnfixerAPI = {
     const url = `/chatbot/ask`;
     return instance.post(url, data);
   },
+  //Notification
+  getNotification: () => {
+    const url = `/notifications`;
+    return instance.get(url);
+  },
   //Request
   sendRequest: (params) => {
     const url = `/requests`;
@@ -51,7 +56,6 @@ const vnfixerAPI = {
     const url = `/users/staff-request?action=${action}`;
     return instance.put(url, data);
   },
-
   //Categories
   getCategories: () => {
     const url = `/categories`;
@@ -108,6 +112,10 @@ const vnfixerAPI = {
   postAgencyPayment: (id, data) => {
     const url = `/agencies/payment/${id}`;
     return instance.post(url, data);
+  },
+  getAgencyPaymentStatus: (id, data) => {
+    const url = `/payment/vnpay_return/${id}`;
+    return instance.get(url, { params: data });
   },
   // Manage
   getRequestManager: ({ limit = "10", page = "1", category, city, status }) => {
@@ -188,6 +196,10 @@ const vnfixerAPI = {
   getTakedRequest: () => {
     const url = `/requests/request-taked`;
     return instance.get(url);
+  },
+  getActionRequest: (data) => {
+    const url = `/requests`;
+    return instance.get(url, data);
   },
   changeStatusRequest: (id, status) => {
     const url = `/requests/change-status/${id}?status=${status}`;

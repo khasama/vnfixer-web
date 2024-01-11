@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { cities, cityDistrict } from "../constants";
+import { cityDistrict } from "../constants";
 import {
   FaBuilding,
   FaLocationDot,
@@ -27,11 +27,14 @@ import toast, { Toaster } from "react-hot-toast";
 import Button from "../components/Button";
 import vnfixerAPI from "../api/vnfixerApi";
 import { logout } from "../redux/reducers/auth";
+import { useRouter } from "next/navigation";
 
 const AgencyCreate = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const categories = useSelector(categoriesSelector);
   const [agencyName, setAgencyName] = useState("");
+  const [checked, setChecked] = useState(false);
   const [city, setCity] = useState("");
   const [district, setDistrict] = useState("");
   const [agencyAddress, setAgencyAddress] = useState("");
@@ -67,12 +70,14 @@ const AgencyCreate = () => {
           agencyName.length > 0 &&
           agencyDescription.length > 0 &&
           agencyAddress.length > 0 &&
+          district.length > 0 &&
           categoryId > 0 &&
-          city.length > 0
+          city?.length > 0
         ) {
           const data = {
             branch: {
               city: city,
+              // district: district,
               address: agencyAddress,
             },
             name: agencyName,
@@ -80,15 +85,20 @@ const AgencyCreate = () => {
             categoryId: categoryId,
           };
           try {
-            await vnfixerAPI.createAgency(data);
-            clearData();
+            const res = await vnfixerAPI.createAgency(data);
+            if (res.status == 201) {
+              clearData();
+              toast.success("Yêu cầu đã được gửi đi và bạn cần đăng nhập lại");
+              dispatch(logout())
+                .then(unwrapResult)
+                .catch((err) => console.log(err));
+              setTimeout(() => {
+                router.push("/login");
+              }, 1000);
+            }
           } catch (error) {
             toast.error("Có lỗi xảy ra, vui lòng thử lại sau!");
           }
-          toast.success("Yêu cầu đã được gửi đi và bạn cần đăng nhập lại");
-          dispatch(logout())
-            .then(unwrapResult)
-            .catch((err) => console.log(err));
         } else {
           toast.error("Vui lòng nhập đủ thông tin cần thiết!");
         }
@@ -331,27 +341,6 @@ const AgencyCreate = () => {
                   })}
             </Select>
           </FormControl>
-          {/* <FormControl fullWidth variant="standard" className="w-10/12">
-            <InputLabel id="demo-simple-select-standard-label" required>
-              Tỉnh/Thành
-            </InputLabel>
-            <Select
-              labelId="demo-simple-select-standard-label"
-              id="demo-simple-select-standard"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              label="province"
-            >
-              {cities &&
-                cities.map((city, index) => {
-                  return (
-                    <MenuItem key={index} value={city}>
-                      {city}
-                    </MenuItem>
-                  );
-                })}
-            </Select>
-          </FormControl> */}
           <TextField
             required
             fullWidth
@@ -386,7 +375,7 @@ const AgencyCreate = () => {
                 })}
             </Select>
           </FormControl>
-          <div className="relative w-full bg-slate-100 rounded-md">
+          <div className="relative w-full md:w-10/12 bg-slate-100 rounded-md">
             <textarea
               value={agencyDescription}
               onChange={(e) => setAgencyDescription(e.target.value)}
@@ -397,15 +386,58 @@ const AgencyCreate = () => {
               Mô tả
             </label>
           </div>
+          <div className="w-10/12">
+            <div className="flex items-center justify-start mb-4">
+              <input
+                id="default-checkbox"
+                type="checkbox"
+                checked={checked}
+                onClick={() => setChecked(!checked)}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+              />
+              <label
+                htmlFor="default-checkbox"
+                className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+              >
+                Tôi đã đọc các điều khoản dưới và đồng ý.
+              </label>
+            </div>
+            <p className="text-sm font-medium">Điều khoản tóm tắt:</p>
+            <div className="ms-2 text-xs font-medium text-gray-900 dark:text-gray-300">
+              <ul className="gap-3">
+                <li>
+                  1. Cam kết sẽ thực hiện cung cấp dịch vụ chất lượng và trung
+                  thực.
+                </li>
+                <li>2. Đảm bảo về bảo mật thông tin khách hàng và dữ liệu.</li>
+                <li>
+                  3. Mỗi yêu cầu với trạng thái hoàn thành sẽ được tính phí{" "}
+                  <span className="text-blue-400">2.000vnđ.</span>
+                </li>
+                <li>
+                  4. Giới hạn tối đa cho thanh toán là 300 yêu cầu với trạng
+                  thái hoàn thành.
+                </li>
+                <li>
+                  5. Đại lý không tuân thủ các quy tắc trên sẽ nhận hình phạt từ
+                  VNFIXER.
+                </li>
+              </ul>
+            </div>
+          </div>
           <div className="w-full flex items-end justify-center">
-            <Button
-              onClick={handleCreateAgency}
+            <button
+              onClick={
+                checked
+                  ? handleCreateAgency
+                  : () => toast.error("Vui lòng đồng ý các điều khoản!")
+              }
               className="px-4 py-3 bg-blue-500 rounded-md shadow-sm mx-auto"
             >
               <p className="text-sm font-semibold text-white hover:text-gray-200">
                 Đăng ký
               </p>
-            </Button>
+            </button>
           </div>
         </div>
       </div>

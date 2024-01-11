@@ -1,26 +1,11 @@
 "use client";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-// import { cookies } from "next/headers";
 import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { isLoggedInSelector } from "../redux/selectors";
 import vnfixerAPI from "../api/vnfixerApi";
 import RequestItem from "../components/RequestItem";
-
-// const getRequest = async () => {
-//   const cookieStore = cookies();
-//   const token = cookieStore.get("access_token");
-//   const data = await fetch("http://localhost:5000/api/requests/me", {
-//     headers: {
-//       Authorization: `Bearer ${token.value}`,
-//     },
-//     cache: "no-store",
-//   });
-
-//   const res = await data.json();
-//   return res.data;
-// };
 
 const MyRequest = () => {
   const isLoggedIn = useSelector(isLoggedInSelector);
@@ -123,7 +108,7 @@ const MyRequest = () => {
         </ol>
       </div>
       <div className="flex flex-col gap-3 items-center justify-center my-3 max-h-[100vh] overflow-auto scrollbar">
-        {requests && requests?.length > 0 ? (
+        {requests && requests?.reverse()?.length > 0 ? (
           requests?.map((request) => (
             <RequestItem
               key={request.id}

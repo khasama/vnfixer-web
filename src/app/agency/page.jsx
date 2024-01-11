@@ -57,11 +57,11 @@ const Agencies = () => {
   }, [currentUser]);
 
   useEffect(() => {
-    if (city.length > 0 || selectedCheckbox > 0) {
+    if (city?.length > 0 || selectedCheckbox > 0) {
       const getAgencies = async () => {
         try {
           const response = await vnfixerAPI.getAgenciesBy(
-            city.length > 0 ? city : "Tiền Giang",
+            city?.length > 0 ? city : "Tiền Giang",
             selectedCheckbox,
             10,
             1
@@ -179,7 +179,7 @@ const Agencies = () => {
         <div className="w-full">
           <div className="result flex flex-row gap-5 items-center">
             <p className="font-bold text-lg text-gray-600">
-              {city.length > 0 || selectedCheckbox > 0
+              {city?.length > 0 || selectedCheckbox > 0
                 ? "Kết quả tìm kiếm"
                 : "Đại lý đề xuất"}
             </p>
@@ -191,7 +191,7 @@ const Agencies = () => {
             ) : (
               ""
             )}
-            {city.length > 0 ? (
+            {city?.length > 0 ? (
               <p className="rounded-2xl bg-[#499cfbc2] px-3 py-2 text-white">
                 Thành phố:{` ${city}`}
               </p>

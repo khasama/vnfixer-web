@@ -15,7 +15,7 @@ const RequestItem = (props) => {
       return "bg-yellow-500";
     } else if (status === "DONE") {
       return "bg-green-500";
-    } else if (status === "PICKED") {
+    } else if (status === "PICKED" || status === "PAID") {
       return "bg-violet-500";
     }
   };

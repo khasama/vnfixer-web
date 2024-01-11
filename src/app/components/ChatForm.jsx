@@ -135,7 +135,7 @@ export const Chat = () => {
                           />
                         </span>
                       </div>
-                      {data && (
+                      {index != 0 && data && (
                         <div className="flex flex-col w-full mt-2 space-x-3 max-w-xs flex-wrap gap-2">
                           {data?.map((item) => (
                             <div
