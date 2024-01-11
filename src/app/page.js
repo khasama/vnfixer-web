@@ -12,8 +12,8 @@ export default function Home() {
     <main>
       <Banner />
       <div className="lg:container mt-24 mx-auto px-5 lg:px-12 py-4">
-        <AgencyCards />
         <ServiceCards />
+        <AgencyCards />
         <Partner />
       </div>
     </main>

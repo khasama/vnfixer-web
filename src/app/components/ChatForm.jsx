@@ -1,29 +1,40 @@
 "use client";
-import moment from "moment";
+// import moment from "moment";
+import moment from "moment-timezone";
 import Image from "next/image";
-import { Configuration, OpenAIApi } from "openai";
-import React, { useState } from "react";
+// import { OpenAIApi } from "openai";
+const { OpenAI } = require("openai");
+import React, { useRef, useState } from "react";
 import { FaXmark } from "react-icons/fa6";
 import ReactTimeAgo from "react-time-ago";
+import vnfixerAPI from "../api/vnfixerApi";
+import toast from "react-hot-toast";
+import Link from "next/link";
+import CardAgency from "./CardAgency";
 require("dotenv").config();
 
 export const Chat = () => {
+  const messagesEndRef = useRef(null);
+  moment.tz.setDefault("UCT");
   const currentTime = moment();
+  const [show, setShow] = useState(false);
+  const [compos, setCompos] = useState(false);
+  const [data, setData] = useState();
+  const openai = new OpenAI({
+    apiKey: process.env.customKey,
+    dangerouslyAllowBrowser: true,
+  });
+
+  const formattedTime = currentTime.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
     {
-      time: currentTime.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
+      time: formattedTime,
       user: "bot",
-      message: "Trợ lý VNFIXER xin chào, tôi có thể giúp gì cho bạn",
+      message: "Trợ lý VNFIXER xin chào, tôi có thể giúp gì cho bạn?",
     },
   ]);
-  const [show, setShow] = useState(false);
-  const [compos, setCompos] = useState(false);
-  const config = new Configuration({
-    apiKey: "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",
-  });
-  const openai = new OpenAIApi(config);
-  const formattedTime = currentTime.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
 
   const handleAfter = (user, message) => {
     const data = {
@@ -32,26 +43,44 @@ export const Chat = () => {
       message: message,
     };
     setMessages((prevMessages) => {
-      setCompos(false);
       setInput("");
       return [...prevMessages, data];
     });
+    // if (messagesEndRef.current) {
+    //   messagesEndRef?.current.scrollIntoView({ behavior: "smooth" });
+    // }
   };
 
   const sendMess = async () => {
-    setCompos(true);
-    handleAfter("me", input);
-    const response = await openai.createCompletion({
-      model: "text-davinci-003",
-      prompt: input,
-      temperature: 0,
-      top_p: 1,
-      frequency_penalty: 0,
-      presence_penalty: 0,
-      max_tokens: 256,
-    });
-    if (response.status == 200 && response?.data?.choices) {
-      handleAfter("bot", response?.data.choices[0]?.text);
+    if (input.length > 0) {
+      handleAfter("me", input);
+      setCompos(() => {
+        setData();
+        return true;
+      });
+      const data = {
+        question: input,
+      };
+      try {
+        const responseAPI = await vnfixerAPI.chatBot(data);
+        if (responseAPI.status == 200 && responseAPI?.data?.canDetect) {
+          setCompos(false);
+          handleAfter("bot", responseAPI?.data?.answer);
+          setData(responseAPI?.data?.data);
+        } else if (responseAPI.status == 200 && !responseAPI?.data?.canDetect) {
+          const responseGPT = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: responseAPI?.data?.question }],
+            max_tokens: 256,
+          });
+          if (responseGPT?.choices[0]?.message) {
+            handleAfter("bot", responseGPT?.choices[0]?.message?.content);
+            setCompos(false);
+          }
+        }
+      } catch (error) {
+        toast.error("Có lỗi xảy ra, vui lòng thử lại sau!");
+      }
     }
   };
 
@@ -74,7 +103,7 @@ export const Chat = () => {
       </div>
       {show && (
         <div className="flex flex-col items-center justify-center w-screen bg-gray-100 text-gray-800">
-          <div className="flex flex-col flex-grow w-full max-w-sm bg-white shadow-xl rounded-lg min-h-[70vh] overflow-hidden fixed bottom-5 right-3">
+          <div className="flex flex-col flex-grow w-full max-w-sm bg-white shadow-xl rounded-lg min-h-[60vh] overflow-hidden fixed bottom-5 right-3">
             <div className="flex flex-row items-center h-12 bg-blue-600 w-full px-4">
               <div>
                 <button
@@ -94,9 +123,9 @@ export const Chat = () => {
               {messages?.map((message, index) => (
                 <React.Fragment key={index}>
                   {message?.user == "bot" ? (
-                    <div className="flex w-full mt-2 space-x-3 max-w-xs">
+                    <div className="flex flex-col w-full mt-2 space-x-3 max-w-xs">
                       <div>
-                        <div className="bg-gray-300 p-3 rounded-r-lg rounded-bl-lg">
+                        <div className="bg-gray-100 p-3 rounded-r-lg rounded-bl-lg">
                           <p className="text-sm">{message?.message}</p>
                         </div>
                         <span className="text-xs text-gray-500 leading-none">
@@ -106,6 +135,74 @@ export const Chat = () => {
                           />
                         </span>
                       </div>
+                      {index != 0 && data && (
+                        <div className="flex flex-col w-full mt-2 space-x-3 max-w-xs flex-wrap gap-2">
+                          {data?.map((item) => (
+                            <div
+                              key={item?.id}
+                              className="flex flex-row bg-gray-100 p-3 rounded-r-lg rounded-bl-lg"
+                            >
+                              <Link
+                                className="flex flex-row"
+                                href={`/agency/${item?.id}/${item?.name}`}
+                                shallow
+                              >
+                                <Image
+                                  className="w-2/5 h-auto m-auto pl-2"
+                                  src={
+                                    item?.logo
+                                      ? item?.logo
+                                      : require("../../../public/images/logo.png")
+                                  }
+                                  alt={item?.name}
+                                  width={0}
+                                  height={0}
+                                  unoptimized={item?.logo?.length > 0}
+                                  sizes="10vw"
+                                  loading="lazy"
+                                ></Image>
+                                <div className="w-3/5 flex flex-col gap-1.5 text-[#484848] rounded-b-xl">
+                                  <h5 className="text-sm font-semibold text-2">
+                                    {item?.name}
+                                  </h5>
+
+                                  <div className="flex items-center justify-start">
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                      <svg
+                                        key={i}
+                                        className={`w-4 h-4 ms-1 ${
+                                          i == 4
+                                            ? "text-gray-300 dark:text-gray-500"
+                                            : "text-yellow-300"
+                                        }`}
+                                        aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="currentColor"
+                                        viewBox="0 0 22 20"
+                                      >
+                                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                                      </svg>
+                                    ))}
+                                  </div>
+                                  <span className="text-xs text-[#73777a]">
+                                    ({5} đánh giá)
+                                  </span>
+                                  <div className="flex flex-row gap-2 items-center text-xs flex-wrap">
+                                    {item?.branches?.map((branch) => (
+                                      <div
+                                        className="p-1 rounded-md bg-blue-100"
+                                        key={branch?.id}
+                                      >
+                                        {branch.city}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </Link>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="flex w-full mt-2 space-x-3 max-w-xs ml-auto justify-end">
@@ -124,6 +221,7 @@ export const Chat = () => {
                   )}
                 </React.Fragment>
               ))}
+              {/* <div ref={messagesEndRef} /> */}
 
               {compos && (
                 <div className="flex w-full mt-2 space-x-3 max-w-xs">
@@ -131,6 +229,7 @@ export const Chat = () => {
                     width={0}
                     height={50}
                     src="https://support.signal.org/hc/article_attachments/360016877511/typing-animation-3x.gif"
+                    unoptimized={true}
                     alt="..."
                     className="w-16 ml-6"
                   ></Image>
@@ -145,6 +244,15 @@ export const Chat = () => {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     type="text"
+                    onKeyDown={
+                      (evt) => {
+                        if (evt.key == "Enter") {
+                          sendMess();
+                        }
+                      }
+                      // const keyCode = evt.keyCode;
+                      // if (keyCode === 8) sendMess();
+                    }
                     className="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10"
                   />
                   <button className="absolute flex items-center justify-center h-full w-12 right-0 top-0 text-gray-400 hover:text-gray-600">
@@ -167,6 +275,7 @@ export const Chat = () => {
               </div>
               <div className="ml-4">
                 <button
+                  type="submit"
                   onClick={sendMess}
                   className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-xl text-white px-4 py-1 flex-shrink-0"
                 >

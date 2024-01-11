@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { categoriesSelector } from "../redux/selectors";
 import { cities, requestStatus } from "../constants";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 const FilterSide = (props) => {
   const categories = useSelector(categoriesSelector);
@@ -99,31 +100,24 @@ const FilterSide = (props) => {
       <hr className="bg-warmGray-600 my-5" />
       <b className="px-3 text-gray-700">3. Tỉnh thành</b>
       <div className="w-full my-3">
-        <div className="dropdown inline-block relative w-full">
-          <button className="bg-white shadow-2xl text-gray-700 font-semibold py-2 px-4 rounded-md inline-flex items-center w-full">
-            <span className="mr-1">{city} </span>
-            <svg
-              className="fill-current h-4 w-4"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-            >
-              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />{" "}
-            </svg>
-          </button>
-          {!disabled ? (
-            <ul className="dropdown-menu absolute hidden rounded-lg text-gray-700 pt-1 z-10 shadow-lg h-[300px] w-full scrollbar overflow-y-scroll overscroll-x-none">
-              {cities.map((city, index) => (
-                <li
-                  onClick={() => props.onchangeCity(city)}
-                  key={index}
-                  className="rounded-t bg-white hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap cursor-pointer"
-                >
-                  {city}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
+        <FormControl variant="standard" className="w-10/12">
+          <InputLabel id="demo-simple-select-standard-label">
+            Thành phố
+          </InputLabel>
+          <Select
+            labelId="demo-simple-select-standard-label"
+            id="demo-simple-select-standard"
+            value={props.city}
+            onChange={(e) => props.onchangeCity(e.target.value)}
+            label="province"
+          >
+            {cities.map((city, index) => (
+              <MenuItem key={index} value={city}>
+                {city}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </div>
     </div>
   );

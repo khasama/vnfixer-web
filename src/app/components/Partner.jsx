@@ -67,8 +67,9 @@ const Partner = () => {
           >
             <Image
               loading="lazy"
-              src={img.image}
-              alt={img.title}
+              src={img?.image}
+              alt={img?.title ?? ""}
+              unoptimized={img?.image?.length > 0}
               width={0}
               height={0}
               sizes="100vw"

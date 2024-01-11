@@ -11,7 +11,7 @@ import { unwrapResult } from "@reduxjs/toolkit";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { getCategories } from "../redux/reducers/category";
-import { cities } from "../constants";
+import { cityDistrict } from "../constants";
 import vnfixerAPI from "../api/vnfixerApi";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -20,16 +20,23 @@ const FormRequest = ({ id, cityBy, categoryId = 0, onSubmit }) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const categories = useSelector(categoriesSelector);
-  const [province, setProvince] = useState(cityBy?.length > 0 ? cityBy : "");
-  const [device, setDevice] = useState(categoryId > 0 ? categoryId : "");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+  const isLoggedIn = useSelector(isLoggedInSelector);
+
   const [isValidEmail, setIsValidEmail] = useState(true);
+
+  const [title, setTitle] = useState("");
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [date, setDate] = useState(dayjs());
-  const isLoggedIn = useSelector(isLoggedInSelector);
+  const [address, setAddress] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [description, setDescription] = useState("");
+  const [device, setDevice] = useState(categoryId > 0 ? categoryId : "");
+  const [province, setProvince] = useState(cityBy?.length > 0 ? cityBy : "");
+  const [district, setDistrict] = useState("");
+  useEffect(() => {
+    categoryId > 0 && setDevice(categoryId);
+  }, [categoryId]);
 
   useEffect(() => {
     const getAllCategory = () => {
@@ -46,7 +53,7 @@ const FormRequest = ({ id, cityBy, categoryId = 0, onSubmit }) => {
   const clearData = () => {
     typeof onSubmit == "function" && onSubmit(false);
     setDate(() => {
-      setProvince("");
+      // setProvince("");
       setDevice("");
       setTitle("");
       setDescription("");
@@ -68,6 +75,9 @@ const FormRequest = ({ id, cityBy, categoryId = 0, onSubmit }) => {
   const handleChangeProvince = (event) => {
     setProvince(event.target.value);
   };
+  const handleChangeDistrict = (event) => {
+    setDistrict(event.target.value);
+  };
 
   const handleChangeDevice = (event) => {
     setDevice(event.target.value);
@@ -87,32 +97,43 @@ const FormRequest = ({ id, cityBy, categoryId = 0, onSubmit }) => {
           province.length > 0 &&
           device > 0 &&
           phone.length > 0 &&
+          district.length > 0 &&
+          address.length > 0 &&
           dayjs(date).format("YYYY-MM-DD").length > 0)
       ) {
         const data = {
           description: description,
-          location: cityBy?.length > 0 ? cityBy : province,
+          location: address,
           expectDate: [dayjs(date).format("YYYY-MM-DD")],
           categoryId: device,
           city: province,
           customerPhone: phone,
           customerName: fullName,
           customerEmail: email,
-          title: title?.length > 0 ? title : description,
+          district: district,
         };
         try {
           if (id > 0 && cityBy?.length > 0) {
             data.branchId = id;
             data.city = cityBy;
-            await vnfixerAPI.sendRequestById(data);
+            const resId = await vnfixerAPI.sendRequestById(data);
+            if (resId.status == 201) {
+              toast.success("Yêu cầu của bạn đã được gửi đi");
+            } else {
+              toast.error("Có lỗi xảy ra, vui lòng thử lại sau!");
+            }
           } else {
-            await vnfixerAPI.sendRequest(data);
+            const res = await vnfixerAPI.sendRequest(data);
+            if (res.status == 201) {
+              toast.success("Yêu cầu của bạn đã được gửi đi");
+            } else {
+              toast.error("Có lỗi xảy ra, vui lòng thử lại sau!");
+            }
           }
           clearData();
         } catch (error) {
           toast.error("Có lỗi xảy ra, vui lòng thử lại sau!");
         }
-        toast.success("Yêu cầu của bạn đã được gửi đi");
       } else {
         toast.error("Vui lòng nhập đủ thông tin cần thiết!");
       }
@@ -125,8 +146,8 @@ const FormRequest = ({ id, cityBy, categoryId = 0, onSubmit }) => {
   };
 
   return (
-    <div className="bg-white p-5 rounded-md w-4/5 mx-5 md:mx-0 xl xl:w-1/2 shadow-xl">
-      <div className="grid sm:grid-cols-2 sm:gap-10 sm:flex-col grid-cols-1 ">
+    <div className="bg-white p-5 rounded-md w-4/5 mx-5 md:mx-0 xl xl:w-2/3 shadow-xl">
+      <div className="sm:grid sm:grid-cols-2 sm:gap-10 flex flex-col justify-center items-center gap-3">
         <div className="flex gap-3 flex-col justify-start items-center flex-wrap w-full">
           <div className="flex flex-row justify-between items-center flex-wrap w-full">
             <svg
@@ -168,36 +189,29 @@ const FormRequest = ({ id, cityBy, categoryId = 0, onSubmit }) => {
                 onChange={(e) => setPhone(e.target.value)}
               />
             </div>
-            <FormControl
-              fullWidth
-              variant="standard"
-              className={`w-1/2`}
-              disabled={cityBy?.length > 0}
-            >
-              <InputLabel id="demo-simple-select-standard-label" required>
-                Tỉnh/Thành
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-standard-label"
-                id="demo-simple-select-standard"
-                value={cityBy?.length > 0 ? cityBy : province}
-                onChange={handleChangeProvince}
-                label="province"
-              >
-                {cities &&
-                  cities.map((city, index) => {
-                    return (
-                      <MenuItem key={index} value={city}>
-                        {city}
-                      </MenuItem>
-                    );
-                  })}
-              </Select>
-            </FormControl>
+            <div className={`${cityBy?.length > 0 ? "w-full" : "w-1/2"}`}>
+              <TextField
+                required
+                fullWidth
+                id="standard-basic"
+                label="Địa chỉ"
+                helperText=""
+                variant="standard"
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+            </div>
           </div>
           <FormControl className="w-full" variant="standard">
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["DatePicker"]}>
+              <DemoContainer
+                sx={{
+                  padding: 0,
+                  height: "100%",
+                }}
+                components={["DatePicker"]}
+              >
                 <DatePicker
                   label="Ngày dự kiến"
                   value={date}
@@ -230,16 +244,15 @@ const FormRequest = ({ id, cityBy, categoryId = 0, onSubmit }) => {
               />
             </svg>
             <FormControl variant="standard" className="w-10/12">
-              <InputLabel id="demo-simple-select-standard-label">
+              <InputLabel id="demo-simple-select-standard-label" required>
                 Dịch vụ
               </InputLabel>
               <Select
                 labelId="demo-simple-select-standard-label"
                 id="demo-simple-select-standard"
-                value={device ? device : categoryId}
+                value={device}
                 onChange={(e) => handleChangeDevice(e)}
-                label="device"
-                disabled={categoryId > 0}
+                label="province"
               >
                 {categories?.length > 0 &&
                   categories.map((category, index) => {
@@ -252,11 +265,10 @@ const FormRequest = ({ id, cityBy, categoryId = 0, onSubmit }) => {
               </Select>
             </FormControl>
           </div>
-
           <div className="flex flex-row justify-between gap-5 w-full">
             <TextField
+              required
               className="w-1/2"
-              fullWidth
               id="standard-basic"
               value={email}
               onChange={handleChangeEmail}
@@ -267,7 +279,6 @@ const FormRequest = ({ id, cityBy, categoryId = 0, onSubmit }) => {
             />
             <TextField
               className="w-1/2"
-              fullWidth
               id="standard-basic"
               label="Mô tả"
               value={description}
@@ -276,17 +287,68 @@ const FormRequest = ({ id, cityBy, categoryId = 0, onSubmit }) => {
               variant="standard"
             />
           </div>
-          <div className="flex flex-row justify-between pt-5">
-            <button
-              onClick={handleSubmit}
-              className="bg-[#FFD333] hover:bg-[#ac9132] text-black font-bold py-3 px-10 rounded"
+          <div className="flex flex-row justify-between gap-5 w-full">
+            <FormControl
+              fullWidth
+              variant="standard"
+              className={`w-1/2`}
+              disabled={cityBy?.length > 0}
             >
-              Yêu cầu
-            </button>
-            {/* <LoadingButton className="py-3 px-10" loading hidden variant="outlined">
+              <InputLabel id="demo-simple-select-standard-label" required>
+                Tỉnh/Thành
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                value={cityBy?.length > 0 ? cityBy : province}
+                onChange={handleChangeProvince}
+                label="province"
+              >
+                {cityDistrict &&
+                  cityDistrict.map((city, index) => {
+                    return (
+                      <MenuItem key={index} value={city.city}>
+                        {city.city}
+                      </MenuItem>
+                    );
+                  })}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth variant="standard" className={`w-1/2`}>
+              <InputLabel id="demo-simple-select-standard-label" required>
+                Quận/Huyện
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                value={district}
+                onChange={handleChangeDistrict}
+                label="district"
+              >
+                {province &&
+                  cityDistrict
+                    ?.find((city) => city.city == province)
+                    ?.districts?.map((district, index) => {
+                      return (
+                        <MenuItem key={index} value={district}>
+                          {district}
+                        </MenuItem>
+                      );
+                    })}
+              </Select>
+            </FormControl>
+          </div>
+        </div>
+        <div className="flex flex-row justify-center items-center pt-2 col-span-2">
+          <button
+            onClick={handleSubmit}
+            className="bg-[#FFD333] hover:bg-[#ac9132] text-black font-bold py-3 px-10 rounded"
+          >
+            Yêu cầu
+          </button>
+          {/* <LoadingButton className="py-3 px-10" loading hidden variant="outlined">
                   Submit
                 </LoadingButton> */}
-          </div>
         </div>
       </div>
     </div>

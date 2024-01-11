@@ -1,5 +1,5 @@
 // export const baseURL =
-//   "https://077f-2405-4802-95d0-a426-b0a7-d68b-92f2-dc8a.ngrok-free.app/";
+//   "https://3a0b-2001-ee0-4b45-7de0-b537-4725-cc39-6af2.ngrok-free.app/api/";
 export const baseURL = "http://localhost:5000/api/";
 const provideURL = "https://provinces.open-api.vn/api/p/";
 import axios from "axios";
@@ -9,6 +9,7 @@ const instance = axios.create({
   baseURL: baseURL,
   headers: {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
   },
 });
 export const provinces = axios.create({

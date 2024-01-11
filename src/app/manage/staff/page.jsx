@@ -78,6 +78,7 @@ const Manager = () => {
                 : "/images/logo.png"
             }
             alt={"Agency logo"}
+            unoptimized={inf?.agency?.logo?.length > 0}
             width={0}
             height={0}
             sizes="20vw"
@@ -130,7 +131,9 @@ const Manager = () => {
             <AccordionHeader onClick={() => handleOpen(2)}>
               ĐÃ HOÀN THÀNH
             </AccordionHeader>
-            <AccordionBody>Coming soon!</AccordionBody>
+            <AccordionBody>
+              <Done></Done>
+            </AccordionBody>
           </Accordion>
           <Accordion
             className="border border-red-300 p-3 rounded-md shadow-md"
@@ -139,7 +142,9 @@ const Manager = () => {
             <AccordionHeader onClick={() => handleOpen(3)}>
               ĐÃ HUỶ
             </AccordionHeader>
-            <AccordionBody>Coming soon!</AccordionBody>
+            <AccordionBody>
+              <Cancel></Cancel>
+            </AccordionBody>
           </Accordion>
         </div>
       </div>
@@ -276,10 +281,16 @@ const Taken = () => {
 };
 const Done = () => {
   const [doneReq, setDoneReq] = useState();
+  const currentUser = useSelector(currentUserSelector);
 
   const getMyRequest = async () => {
     try {
-      const doneRes = await vnfixerAPI.getDoneRequest();
+      const data = {
+        staffId: currentUser?.id,
+        status: "DONE",
+      };
+      const doneRes = await vnfixerAPI.getActionRequest(data);
+      console.log(doneRes);
       if (doneRes.status == 200) {
         setDoneReq(doneRes.data.data);
       }
@@ -301,7 +312,7 @@ const Done = () => {
         <FaRotateRight className="text-white"></FaRotateRight>
       </button>
       <div className="w-full flex flex-col gap-3 max-h-[100vh] overflow-auto scrollbar">
-        {doneReq && doneReq.length !== 0 ? (
+        {/* {doneReq && doneReq.length !== 0 ? (
           doneReq?.map((request) => (
             <RequestItemStaff
               key={request.id}
@@ -319,7 +330,7 @@ const Done = () => {
           ))
         ) : (
           <p>Bạn chưa hoàn thành yêu cầu nào</p>
-        )}
+        )} */}
       </div>
     </>
   );
@@ -329,7 +340,11 @@ const Cancel = () => {
 
   const getMyRequest = async () => {
     try {
-      const cancelRes = await vnfixerAPI.getcancelRequest();
+      const data = {
+        staffId: currentUser?.id,
+        status: "CANCEL",
+      };
+      const cancelRes = await vnfixerAPI.getActionRequest(data);
       if (cancelRes.status == 200) {
         setCancelReq(cancelRes.data.data);
       }
@@ -351,7 +366,7 @@ const Cancel = () => {
         <FaRotateRight className="text-white"></FaRotateRight>
       </button>
       <div className="w-full flex flex-col gap-3 max-h-[100vh] overflow-auto scrollbar">
-        {cancelReq && cancelReq.length !== 0 ? (
+        {/* {cancelReq && cancelReq.length !== 0 ? (
           cancelReq?.map((request) => (
             <RequestItemStaff
               key={request.id}
@@ -369,7 +384,7 @@ const Cancel = () => {
           ))
         ) : (
           <p>Bạn chưa huỷ yêu cầu nào</p>
-        )}
+        )} */}
       </div>
     </>
   );

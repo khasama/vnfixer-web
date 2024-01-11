@@ -10,6 +10,7 @@ import { unwrapResult } from "@reduxjs/toolkit";
 export default function MessageForm({ onClose }) {
   const dispatch = useDispatch();
   const [invites, setInvites] = useState();
+  const [notifications, setNotifications] = useState();
   const [showModal, setShowModal] = useState(true);
   const currentUser = useSelector(currentUserSelector);
 
@@ -55,9 +56,24 @@ export default function MessageForm({ onClose }) {
       }
     }
   };
+  const getNotifications = async () => {
+    if (currentUser && currentUser?.email) {
+      try {
+        const res = await vnfixerAPI.getNotification();
+        if (res.status == 200) {
+          setNotifications(res?.data?.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
 
   useEffect(() => {
-    currentUser && getInvite();
+    if (currentUser) {
+      getInvite();
+      getNotifications();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
@@ -117,20 +133,23 @@ export default function MessageForm({ onClose }) {
                         </div>
                       </div>
                     ))}
-                    <div className="bg-[#cecfd030] p-2 rounded-md mt-3">
-                      <div className="mt-2 text-[15px] leading-relaxed text-gray-600">
-                        Hãy cùng VNFIXER khám phá các dịch vụ và tiện ích của
-                        chúng tôi nào.
-                        <br />
-                        Thân ái.
-                        <div className="text-xs text-black text-right">
-                          <ReactTimeAgo
-                            date={Date.parse("2023-12-31T11:30:21.000Z")}
-                            locale="EN-US"
-                          />
+                    {notifications?.map((notification) => (
+                      <>
+                        <div className="bg-[#cecfd030] p-2 rounded-md mt-3">
+                          <div className="mt-2 text-[15px] leading-relaxed text-gray-600">
+                            <b> {notification?.content?.title}</b>
+                            <br />
+                            {notification?.content?.body}
+                            <div className="text-xs text-black text-right">
+                              <ReactTimeAgo
+                                date={Date.parse(notification?.createdAt)}
+                                locale="EN-US"
+                              />
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
+                      </>
+                    ))}
                     <div className="bg-[#cecfd030] p-2 rounded-md mt-3">
                       <div className="mt-2 text-[15px] leading-relaxed text-gray-600">
                         Xin chào thành viên mới, VNFIXER xin cảm ơn bạn đã tin
