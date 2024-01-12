@@ -393,7 +393,7 @@ const AgencyCreate = () => {
                 type="checkbox"
                 checked={checked}
                 onClick={() => setChecked(!checked)}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2  "
               />
               <label
                 htmlFor="default-checkbox"
@@ -412,7 +412,7 @@ const AgencyCreate = () => {
                 <li>2. Đảm bảo về bảo mật thông tin khách hàng và dữ liệu.</li>
                 <li>
                   3. Mỗi yêu cầu với trạng thái hoàn thành sẽ được tính phí{" "}
-                  <span className="text-blue-400">2.000vnđ.</span>
+                  <span className="text-blue-400">2.000 VNĐ.</span>
                 </li>
                 <li>
                   4. Giới hạn tối đa cho thanh toán là 300 yêu cầu với trạng

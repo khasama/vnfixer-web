@@ -75,6 +75,8 @@ export const requestStatus = [
 
 export const requestStaffStatus = ["DONE", "CANCEL"];
 
+export const agencyRole = ["STAFF", "MANAGER"];
+
 export const cityDistrict = [
   {
     city: "An Giang",

@@ -107,19 +107,21 @@ const MyRequest = () => {
           </li>
         </ol>
       </div>
-      <div className="flex flex-col gap-3 items-center justify-center my-3 max-h-[100vh] overflow-auto scrollbar">
+      <div className="block flex-col gap-3 items-center justify-center my-3 max-h-[100vh] overflow-auto scrollbar">
         {requests && requests?.reverse()?.length > 0 ? (
           requests?.map((request) => (
             <RequestItem
               key={request.id}
               id={request.id}
-              title={request.title}
+              title={request.description}
               description={request.description}
               city={request.city}
               expectDate={request.expectDate}
               createdAt={request.createdAt}
               status={request.status}
               customerName={request.customerName}
+              customerEmail={request.customerEmail}
+              customerPhone={request.customerPhone}
               category={request.category}
               branch={request.branch}
             ></RequestItem>

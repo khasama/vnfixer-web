@@ -199,7 +199,7 @@ const vnfixerAPI = {
   },
   getActionRequest: (data) => {
     const url = `/requests`;
-    return instance.get(url, data);
+    return instance.get(url, { params: data });
   },
   changeStatusRequest: (id, status) => {
     const url = `/requests/change-status/${id}?status=${status}`;

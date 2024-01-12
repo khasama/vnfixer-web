@@ -7,15 +7,15 @@ import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 const FilterSide = (props) => {
   const categories = useSelector(categoriesSelector);
-  const [city, setCity] = useState("Tỉnh thành");
+  // const [city, setCity] = useState("Tỉnh thành");
   const [disabled, setDisabled] = useState(false);
 
-  useEffect(() => {
-    setCity(() => {
-      setDisabled(props.disabled);
-      return props?.city;
-    });
-  }, [props]);
+  // useEffect(() => {
+  //   setCity(() => {
+  //     setDisabled(props.disabled);
+  //     return props?.city;
+  //   });
+  // }, [props]);
 
   return (
     <div className="bg-white p-4 min-h-[90vh] rounded-lg shadow-lg w-[20em]">
