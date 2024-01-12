@@ -267,13 +267,15 @@ const RequestTab = (props) => {
           <RequestItemManager
             key={request.id}
             id={request.id}
-            title={request.title}
+            title={request.description}
             description={request.description}
             city={request.city}
             expectDate={request.expectDate}
             createdAt={request.createdAt}
             status={request.status}
             customerName={request.customerName}
+            customerEmail={request.customerEmail}
+            customerPhone={request.customerPhone}
             category={request.category}
             branch={request.branch}
             onPick={handlePickRequest}

@@ -66,9 +66,9 @@ const Payment = () => {
       >
         <div className="relative p-4 w-2/3 max-h-full">
           {/* Modal content */}
-          <div className="relative bg-gray-100 rounded-lg shadow dark:bg-gray-700">
+          <div className="relative bg-gray-100 rounded-lg shadow ">
             {/* Modal header */}
-            <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+            <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t ">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Chi tiết yêu cầu
               </h3>
@@ -213,7 +213,7 @@ const Payment = () => {
   };
 
   const handlePayment = async () => {
-    if (requestsId?.length * 2000 > 10000) {
+    if (requestsId?.length * 2000 >= 10000) {
       if (requestsId && returnUrl) {
         const data = {
           requestIds: [...requestsId],
@@ -345,7 +345,7 @@ const Payment = () => {
         )}
         {requests ? (
           <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-50  dark:text-gray-400">
               <tr>
                 <th scope="col" className="p-4">
                   <div className="flex items-center">
