@@ -272,9 +272,9 @@ const Taken = () => {
             expectDate={takenReq.expectDate}
             createdAt={takenReq.createdAt}
             status={takenReq.status}
-            customerName={request.customerName}
-            customerEmail={request.customerEmail}
-            customerPhone={request.customerPhone}
+            customerName={takenReq.customerName}
+            customerEmail={takenReq.customerEmail}
+            customerPhone={takenReq.customerPhone}
             category={takenReq.category}
             branch={takenReq.branch}
             onChangeStatus={handleChangeStatus}
