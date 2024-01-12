@@ -67,6 +67,7 @@ export const login = createAsyncThunk(
           agencyId: response?.branch?.agencyId ?? "",
           agencyName: response?.branch?.agency?.name ?? "",
           branchAddress: response?.branch?.address ?? "",
+          ownerAgency: response?.branch?.agency?.ownerId ?? "",
         };
         return { user };
       }
@@ -150,6 +151,7 @@ export const updateUser = createAsyncThunk(
           categoryId: response?.branch?.agency?.categoryId ?? "",
           agencyName: response?.branch?.agency?.name ?? "",
           branchAddress: response?.branch?.address ?? "",
+          ownerAgency: response?.branch?.agency?.ownerId ?? "",
         };
         return { user };
       }

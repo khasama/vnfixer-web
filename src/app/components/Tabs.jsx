@@ -2,7 +2,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { currentUserSelector } from "@/app/redux/selectors";
-import FilterSide from "@/app/components/FilterSide";
 import { getCategories } from "@/app/redux/reducers/category";
 import { unwrapResult } from "@reduxjs/toolkit";
 import vnfixerAPI from "../api/vnfixerApi";
@@ -11,12 +10,10 @@ import toast, { Toaster } from "react-hot-toast";
 import {
   FaAt,
   FaBuilding,
-  FaCheck,
   FaCircleNodes,
   FaCircleNotch,
   FaCircleUser,
   FaHandHoldingHand,
-  FaLocationDot,
   FaMagnifyingGlass,
   FaMobileScreen,
   FaPersonMilitaryRifle,
@@ -25,9 +22,10 @@ import {
 import Image from "next/image";
 import ReactTimeAgo from "react-time-ago";
 import Button from "./Button";
-import { cities, cityDistrict } from "../constants";
+import { agencyRole, cityDistrict } from "../constants";
 import { debounce } from "lodash";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import FilterSideManage from "./FilterSideManage";
 
 const Tabs = () => {
   const [openTab, setOpenTab] = useState(1);
@@ -36,7 +34,6 @@ const Tabs = () => {
   const [city, setCity] = useState(
     currentUser?.city?.length > 0 ? currentUser?.city : ""
   );
-  const [district, setDistrict] = useState("");
   const [selectedCheckbox, setSelectedCheckbox] = useState(
     currentUser?.categoryId > 0 ? currentUser?.categoryId : null
   );
@@ -51,6 +48,7 @@ const Tabs = () => {
         });
     };
     getAllCategory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCheckboxChange = (id) => {
@@ -143,7 +141,7 @@ const Tabs = () => {
                 }
                 id="link1"
               >
-                <FilterSide
+                <FilterSideManage
                   onchangeCity={handleChangeCity}
                   onchangeCategory={handleCheckboxChange}
                   city={city}
@@ -151,7 +149,7 @@ const Tabs = () => {
                   status={status}
                   onChangeStatus={setStatus}
                   disabled={true}
-                ></FilterSide>
+                ></FilterSideManage>
                 <RequestTab
                   city={city}
                   selectedCheckbox={selectedCheckbox}
@@ -572,14 +570,14 @@ const StaffTab = () => {
         >
           <FaPlus></FaPlus> Thêm nhân viên
         </Button>
-        <Button
+        {/* <Button
           className="px-3 py-2 rounded-md bg-green-400 mx-5 text-white flex items-center gap-3"
           type={"button"}
           alt={"Mời nhân viên"}
           onClick={() => handleShowInvited(!showModal)}
         >
           <FaCheck></FaCheck> Đã mời
-        </Button>
+        </Button> */}
       </div>
       <ul className="grid md:grid-cols-3 sm:grid-cols-2 grid-rows-1 gap-x-2 m-5">
         {staffs?.map((staff) => (
@@ -592,7 +590,7 @@ const StaffTab = () => {
                     ? staff.imageUrl
                     : "/images/staff.png"
                 }
-                alt={staff.agencyRole}
+                alt={staff.agencyRole ?? "title"}
                 unoptimized={staff?.imageUrl?.length > 0}
                 width={0}
                 height={0}
@@ -650,13 +648,37 @@ const StaffTab = () => {
 
 const Invite = (props) => {
   const [customers, setCustomers] = useState();
+  const currentUser = useSelector(currentUserSelector);
+  const [role, setRole] = useState("STAFF");
+  const [branchId, setBranchId] = useState(currentUser?.branchId);
+  const [branch, setBranch] = useState(currentUser?.city);
+  const [branches, setBranches] = useState();
+
+  const getManagerReq = async () => {
+    const res = await vnfixerAPI.getBranches(currentUser.agencyId);
+    if (res.status == 200) {
+      setBranches(() => {
+        return res?.data?.data?.branches;
+      });
+    }
+  };
+
+  useEffect(() => {
+    getManagerReq();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (branches) {
+      setBranchId(branches?.find((item) => item.city == branch)?.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [branch]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleFindCustomer = useCallback(
     debounce(async (email) => {
       if (email?.length > 2) {
         const res = await vnfixerAPI.getCustomer(email);
-        console.log(res);
         if (res.status == 200) {
           const filtered = res?.data?.data.filter(
             (user) => !user?.agencyRole > 0
@@ -679,7 +701,8 @@ const Invite = (props) => {
   const handleInvite = async (id) => {
     const data = {
       userId: id,
-      role: "STAFF",
+      role,
+      branchId,
     };
     try {
       const res = await vnfixerAPI.inviteCustomer(data);
@@ -718,7 +741,7 @@ const Invite = (props) => {
                       key={customer.id}
                       className="shadow-lg rounded-md px-3 py-2"
                     >
-                      <div className="w-full flex flex-col md:flex-row max-h-[100vh] overflow-auto scrollbar">
+                      <div className="w-full flex md:flex-row flex-col justify-center items-center  max-h-[100vh] overflow-auto scrollbar">
                         <div className="w-1/4 flex justify-center items-center">
                           <Image
                             loading="lazy"
@@ -727,7 +750,7 @@ const Invite = (props) => {
                                 ? customer.imageUrl
                                 : "/images/staff.png"
                             }
-                            alt={customer.agencyRole}
+                            alt={customer.agencyRole ?? "title"}
                             width={0}
                             height={0}
                             sizes="20vw"
@@ -738,10 +761,10 @@ const Invite = (props) => {
                             }}
                           ></Image>
                         </div>
-                        <div className="text-[#484848] rounded-b-xl mt-3 px-5 pt-2 pb-5 w-2/4">
+                        <div className="text-[#484848] rounded-b-xl mt-3 px-4 py-3 w-full">
                           <ul>
                             <li className="text-sm font-semibold mb-2 flex flex-row items-center gap-3">
-                              <FaAt className="text-gray-500"></FaAt>{" "}
+                              <FaAt className="text-gray-500"></FaAt>
                               {customer.email}
                             </li>
                             <li className="text-sm font-semibold mb-2 flex flex-row items-center gap-3">
@@ -754,18 +777,53 @@ const Invite = (props) => {
                             </li>
                           </ul>
                         </div>
-                        <div className="w-1/4 flex gap-3 items-center justify-center">
-                          {/* {typeof props.onInvite == "function"  ( */}
-                          {
-                            <button
-                              type="button"
-                              alt="Add"
-                              className="bg-lightBlue-500 text-sm font-semibold rounded-md px-3 py-2 border text-white"
-                              onClick={() => handleInvite(customer.id)}
+                        <div className="w-full flex gap-3 items-center justify-center">
+                          <FormControl variant="standard" className="w-10/12">
+                            <InputLabel id="demo-simple-select-standard-label">
+                              Vai trò
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
+                              value={role}
+                              onChange={(e) => setRole(e.target.value)}
+                              label="role"
                             >
-                              Mời
-                            </button>
-                          }
+                              {agencyRole.map((role, index) => (
+                                <MenuItem key={index} value={role}>
+                                  {role}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          <FormControl variant="standard" className="w-10/12">
+                            <InputLabel id="demo-simple-select-standard-label">
+                              Chi nhánh
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
+                              value={branch}
+                              onChange={(e) => setBranch(e.target.value)}
+                              label="branchId"
+                            >
+                              {branches &&
+                                branches?.map((branch, index) => (
+                                  <MenuItem key={index} value={branch.city}>
+                                    {branch.city}
+                                  </MenuItem>
+                                ))}
+                            </Select>
+                          </FormControl>
+                          <button
+                            type="button"
+                            alt="Add"
+                            className="bg-lightBlue-500 text-sm font-semibold rounded-md px-3 py-2 border text-white"
+                            onClick={() => handleInvite(customer.id)}
+                          >
+                            Mời
+                          </button>
+
                           {/* <button
                               type="button"
                               alt="Remove"

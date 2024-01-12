@@ -303,7 +303,7 @@ const Payment = () => {
             </li>
           </ol>
         </div>
-        {requests && requests?.length > 0 ? (
+        {requests && requests?.requests?.length > 0 ? (
           <div className="p-3 rounded-lg bg-gray-50 px-10">
             <span className="font-bold text-2xl py-1 flex justify-center items-center">
               THÔNG TIN THANH TOÁN CHI PHÍ DỊCH VỤ
@@ -324,7 +324,7 @@ const Payment = () => {
                   <p className="font-semibold">Tổng:</p>
                   <b>
                     {requestsId && (requestsId?.length * 2000).toLocaleString()}
-                    vnd
+                    VNĐ
                   </b>
                 </div>
                 <button
@@ -340,7 +340,7 @@ const Payment = () => {
           <div className="flex justify-center items-center px-5 py-10">
             <b className="font-bold md:text-2xl text-lg">
               Bạn đã thanh toán hoặc chưa có yêu cầu hoàn thành
-            </b>{" "}
+            </b>
           </div>
         )}
         {requests ? (
