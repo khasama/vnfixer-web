@@ -56,6 +56,7 @@ const AgencyCreate = () => {
     setAgencyName(() => {
       setCity("");
       setAgencyAddress("");
+      setDistrict("");
       setAgencyDescription("");
       setAgencyCategory("");
       setCategoryId("");
@@ -77,7 +78,7 @@ const AgencyCreate = () => {
           const data = {
             branch: {
               city: city,
-              // district: district,
+              district: district,
               address: agencyAddress,
             },
             name: agencyName,
