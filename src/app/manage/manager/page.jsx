@@ -37,17 +37,6 @@ const Manager = () => {
         });
     };
     getAllCategory();
-    // const getAgencies = async () => {
-    //   try {
-    //     const response = await vnfixerAPI.getAgenciesBy();
-    //     if (response.status == 200) {
-    //       setAgencies(response.data.data);
-    //     }
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // };
-    // getAgencies();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

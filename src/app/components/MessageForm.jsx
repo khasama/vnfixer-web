@@ -10,6 +10,7 @@ import { unwrapResult } from "@reduxjs/toolkit";
 export default function MessageForm({ onClose }) {
   const dispatch = useDispatch();
   const [invites, setInvites] = useState();
+  const [notifications, setNotifications] = useState();
   const [showModal, setShowModal] = useState(true);
   const currentUser = useSelector(currentUserSelector);
 
@@ -55,9 +56,24 @@ export default function MessageForm({ onClose }) {
       }
     }
   };
+  const getNotifications = async () => {
+    if (currentUser && currentUser?.email) {
+      try {
+        const res = await vnfixerAPI.getNotification();
+        if (res.status == 200) {
+          setNotifications(res?.data?.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
 
   useEffect(() => {
-    currentUser && getInvite();
+    if (currentUser) {
+      getInvite();
+      getNotifications();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
@@ -65,7 +81,7 @@ export default function MessageForm({ onClose }) {
     <>
       {showModal ? (
         <>
-          <div className="fixed inset-0 z-10 overflow-y-auto">
+          <div className="fixed inset-0 z-10">
             <div
               className="fixed inset-0 w-full h-full"
               onClick={() => handleShowMessage()}
@@ -79,7 +95,7 @@ export default function MessageForm({ onClose }) {
                   <b>&#10006;</b>
                 </button>
                 <div className="mt-3 sm:flex">
-                  <div className="mt-2 text-center sm:text-left">
+                  <div className="mt-2 text-center sm:text-left max-h-[90vh] overflow-auto scrollbar">
                     <h4 className="text-lg font-bold text-gray-800">
                       Thông báo
                     </h4>
@@ -117,21 +133,23 @@ export default function MessageForm({ onClose }) {
                         </div>
                       </div>
                     ))}
-                    <div className="bg-[#cecfd030] p-2 rounded-md mt-3">
-                      <div className="mt-2 text-[15px] leading-relaxed text-gray-600">
-                        Xin chào thành viên mới, VNFIXER xin cảm ơn bạn đã tin
-                        tưởng vào chúng tôi, hi vọng bạn sẽ có những trải nghiệm
-                        tốt trên nền tảng của chúng tôi.
-                        <br />
-                        Thân ái.
-                        <div className="text-xs text-black text-right">
-                          <ReactTimeAgo
-                            date={Date.parse("2023-12-31T11:30:21.000Z")}
-                            locale="EN-US"
-                          />
+                    {notifications?.map((notification) => (
+                      <>
+                        <div className="bg-[#cecfd030] p-2 rounded-md mt-3">
+                          <div className="mt-2 text-[15px] leading-relaxed text-gray-600">
+                            <b> {notification?.content?.title}</b>
+                            <br />
+                            {notification?.content?.body}
+                            <div className="text-xs text-black text-right">
+                              <ReactTimeAgo
+                                date={Date.parse(notification?.createdAt)}
+                                locale="EN-US"
+                              />
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
+                      </>
+                    ))}
                     <div className="bg-[#cecfd030] p-2 rounded-md mt-3">
                       <div className="mt-2 text-[15px] leading-relaxed text-gray-600">
                         Xin chào thành viên mới, VNFIXER xin cảm ơn bạn đã tin

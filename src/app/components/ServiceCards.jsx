@@ -10,42 +10,36 @@ const cardsData = [
     title: "Sửa chữa xe máy",
     description: "Xe gắn máy, xe côn tay, xe tay ga,...",
     image: "/images/projects/4.png",
-    gitUrl: "xemay",
   },
   {
     id: 2,
     title: "Sửa chữa đồ gia dụng",
     description: "Quạt, nồi cơm, biếp gas, lò vi sóng,...",
     image: "/images/projects/2.png",
-    gitUrl: "giadung",
   },
   {
     id: 3,
     title: "Sửa chữa điện lạnh",
     description: "Tủ lạnh, điều hoà, máy giặt,...",
     image: "/images/projects/3.png",
-    gitUrl: "dienlanh",
   },
   {
     id: 4,
     title: "Sửa chữa thiết bị văn phòng",
     description: "Máy in, máy fax, máy photo, scan,...",
     image: "/images/projects/8.png",
-    gitUrl: "vanphong",
   },
   {
     id: 5,
     title: "Sửa chữa điện nước",
     description: "Đường ống nước, đường dây điện,...",
     image: "/images/projects/9.png",
-    gitUrl: "diennuoc",
   },
   {
     id: 6,
     title: "Sửa chữa hệ thống an ninh",
     description: "Camera, thiết bị chống trộm, máy quét vân tay,...",
     image: "/images/projects/5.png",
-    gitUrl: "anninh",
   },
 ];
 

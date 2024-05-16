@@ -2,7 +2,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { currentUserSelector } from "@/app/redux/selectors";
-import FilterSide from "@/app/components/FilterSide";
 import { getCategories } from "@/app/redux/reducers/category";
 import { unwrapResult } from "@reduxjs/toolkit";
 import vnfixerAPI from "../api/vnfixerApi";
@@ -11,10 +10,10 @@ import toast, { Toaster } from "react-hot-toast";
 import {
   FaAt,
   FaBuilding,
-  FaCheck,
+  FaCircleNodes,
+  FaCircleNotch,
   FaCircleUser,
   FaHandHoldingHand,
-  FaLocationDot,
   FaMagnifyingGlass,
   FaMobileScreen,
   FaPersonMilitaryRifle,
@@ -23,14 +22,21 @@ import {
 import Image from "next/image";
 import ReactTimeAgo from "react-time-ago";
 import Button from "./Button";
-import { cities } from "../constants";
+import { agencyRole, cityDistrict } from "../constants";
 import { debounce } from "lodash";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import FilterSideManage from "./FilterSideManage";
 
 const Tabs = () => {
   const [openTab, setOpenTab] = useState(1);
+  const currentUser = useSelector(currentUserSelector);
   const dispatch = useDispatch();
-  const [city, setCity] = useState("");
-  const [selectedCheckbox, setSelectedCheckbox] = useState(null);
+  const [city, setCity] = useState(
+    currentUser?.city?.length > 0 ? currentUser?.city : ""
+  );
+  const [selectedCheckbox, setSelectedCheckbox] = useState(
+    currentUser?.categoryId > 0 ? currentUser?.categoryId : null
+  );
   const [status, setStatus] = useState("PENDING");
 
   useEffect(() => {
@@ -42,6 +48,7 @@ const Tabs = () => {
         });
     };
     getAllCategory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCheckboxChange = (id) => {
@@ -127,20 +134,26 @@ const Tabs = () => {
           <div className="px-4 py-5 flex-auto">
             <div className="tab-content tab-space">
               <div
-                className={openTab === 1 ? "flex gap-3 " : "hidden"}
+                className={
+                  openTab === 1
+                    ? "flex gap-3 md:flex-row flex-col md:items-start items-center"
+                    : "hidden"
+                }
                 id="link1"
               >
-                <FilterSide
+                <FilterSideManage
                   onchangeCity={handleChangeCity}
                   onchangeCategory={handleCheckboxChange}
                   city={city}
                   selectedCheckbox={selectedCheckbox}
                   status={status}
                   onChangeStatus={setStatus}
-                ></FilterSide>
+                  disabled={true}
+                ></FilterSideManage>
                 <RequestTab
                   city={city}
                   selectedCheckbox={selectedCheckbox}
+                  branchId={currentUser.branchId}
                   status={status}
                 ></RequestTab>
               </div>
@@ -148,7 +161,11 @@ const Tabs = () => {
                 <StaffTab></StaffTab>
               </div>
               <div
-                className={openTab === 3 ? "flex gap-3" : "hidden"}
+                className={
+                  openTab === 3
+                    ? "flex gap-3 justify-center items-center flex-wrap"
+                    : "hidden"
+                }
                 id="link3"
               >
                 <BranchTab
@@ -167,27 +184,54 @@ const Tabs = () => {
 
 const RequestTab = (props) => {
   const [requests, setRequests] = useState();
+  const [forBranch, setForBranch] = useState(false);
+
   const getManagerReq = async () => {
-    const data = {
+    setForBranch(false);
+    let data = {
       limit: "10",
       page: "1",
       category: props.selectedCheckbox,
       city: props.city,
       status: props.status,
     };
+    if (props?.branchId) {
+      data.branchId = props.branchId;
+    }
     const res = await vnfixerAPI.getRequestManager(data);
+    if (res.status == 200) {
+      setRequests(res?.data?.data?.entries);
+    }
+  };
+  const getManagerReq4Branch = async () => {
+    setForBranch(true);
+    let data = {
+      limit: "10",
+      page: "1",
+      category: props.selectedCheckbox,
+      city: props.city,
+      status: props.status,
+    };
+    if (props?.branchId) {
+      data.branchId = props.branchId;
+    }
+    const res = await vnfixerAPI.getRequestManagerForBranch(data);
     if (res.status == 200) {
       setRequests(res?.data?.data?.entries);
     }
   };
 
   useEffect(() => {
-    getManagerReq();
-  }, [props]);
+    if (forBranch) {
+      getManagerReq4Branch();
+    } else {
+      getManagerReq();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props, forBranch]);
 
   const handlePickRequest = async (id) => {
     const res = await vnfixerAPI.pickRequestManager(id);
-
     if (res.status == 200) {
       getManagerReq();
       toast.success("Đã nhận yêu cầu");
@@ -195,23 +239,49 @@ const RequestTab = (props) => {
   };
 
   return (
-    <div className="w-full flex flex-col gap-5 max-h-[100vh] overflow-auto scrollbar">
-      {requests?.map((request) => (
-        <RequestItemManager
-          key={request.id}
-          id={request.id}
-          title={request.title}
-          description={request.description}
-          city={request.city}
-          expectDate={request.expectDate}
-          createdAt={request.createdAt}
-          status={request.status}
-          customerName={request.customerName}
-          category={request.category}
-          branch={request.branch}
-          onPick={handlePickRequest}
-        ></RequestItemManager>
-      ))}
+    <div className="flex flex-col w-full">
+      <div className="flex gap-4 items-center">
+        <Button
+          className="px-3 py-2 rounded-md bg-sky-400 mx-5 text-white flex items-center gap-3"
+          type={"button"}
+          alt={"Đang chờ"}
+          onClick={() => getManagerReq()}
+        >
+          <FaCircleNotch></FaCircleNotch> Đang chờ
+        </Button>
+        <Button
+          className="px-3 py-2 rounded-md bg-green-400 mx-5 text-white flex items-center gap-3"
+          type={"button"}
+          alt={"Chi nhánh"}
+          onClick={() => getManagerReq4Branch()}
+        >
+          <FaCircleNodes></FaCircleNodes> Chi Nhánh
+        </Button>
+      </div>
+      <div className="p-4 flex items-center gap-5">
+        {forBranch ? <b>Yêu cầu của chi nhánh</b> : <b>Yêu cầu đang chờ</b>}
+        <small> {` (${requests?.length} Yêu cầu)`}</small>
+      </div>
+      <div className="w-full flex flex-col gap-5 max-h-[100vh] overflow-auto scrollbar">
+        {requests?.map((request) => (
+          <RequestItemManager
+            key={request.id}
+            id={request.id}
+            title={request.description}
+            description={request.description}
+            city={request.city}
+            expectDate={request.expectDate}
+            createdAt={request.createdAt}
+            status={request.status}
+            customerName={request.customerName}
+            customerEmail={request.customerEmail}
+            customerPhone={request.customerPhone}
+            category={request.category}
+            branch={request.branch}
+            onPick={handlePickRequest}
+          ></RequestItemManager>
+        ))}
+      </div>
     </div>
   );
 };
@@ -220,6 +290,7 @@ const BranchTab = () => {
   const currentUser = useSelector(currentUserSelector);
   const [showModal, setShowModal] = useState(false);
   const [city, setCity] = useState("");
+  const [district, setDistrict] = useState("");
   const [branchId, setBranchId] = useState("");
   const [agencyId, setAgencyId] = useState("");
   const [address, setAddress] = useState("");
@@ -240,6 +311,7 @@ const BranchTab = () => {
     const data = {
       agencyId: agencyId,
       address: address,
+      district: district,
       city: city,
     };
     const res = await vnfixerAPI.updateBranch(branchId, data);
@@ -250,18 +322,20 @@ const BranchTab = () => {
     }
   };
 
-  const handleBranchUpdate = (id, address, city, agencyId) => {
+  const handleBranchUpdate = (id, address, city, district, agencyId) => {
     setBranchId(() => {
       setShowModal(!showModal);
       setAddress(address);
       setCity(city);
+      setDistrict(district);
       setAgencyId(agencyId);
+      setAction(true);
       return id;
     });
   };
   const handleShowCreateBranch = () => {
     setShowModal(() => {
-      setAction(!action);
+      setAction(false);
       return !showModal;
     });
   };
@@ -269,6 +343,7 @@ const BranchTab = () => {
     const data = {
       city: city,
       address: address,
+      district: district,
       agencyId: agencyId,
     };
     const res = await vnfixerAPI.createBranch(data);
@@ -282,6 +357,8 @@ const BranchTab = () => {
   useEffect(() => {
     setAgencyId(() => {
       setAddress("");
+      setAddress("");
+      setDistrict("");
       setCity("");
       return branches && branches[0].agencyId;
     });
@@ -299,30 +376,33 @@ const BranchTab = () => {
           <FaPlus></FaPlus> Thêm Chi Nhánh
         </Button>
       </div>
-      <div className="w-full grid grid-cols-3 gap-3 max-h-[100vh] overflow-auto scrollbar">
+      <div className="w-full grid md:grid-cols-2 gap-3 max-h-[100vh] overflow-auto scrollbar">
         {branches?.map((branch) => (
           <div
-            className="rounded-md shadow-lg p-4 hover:shadow-md flex flex-row"
+            className="rounded-md shadow-lg p-4 hover:shadow-md flex md:flex-row flex-col gap-2"
             key={branch.id}
           >
-            <div className="w-2/3 flex flex-col gap-3">
+            <div className="md:w-2/3 w-full flex flex-col gap-3">
               <p className="text-lg flex items-center gap-2 flex-row">
                 <FaBuilding className="text-[#4694EF]" />
-                {branch.city}
+                Thành phố: {branch.city}
               </p>
-              <p className="text-lg flex items-start gap-2 flex-row">
-                <FaLocationDot className="text-[#4694EF]" />
-                {branch.address}
+              <p className="text-lg flex items-start flex-row">
+                Quận/Huyện: {branch.district}
+              </p>
+              <p className="text-lg flex items-start flex-row">
+                Địa chỉ: {branch.address}
               </p>
             </div>
-            <div className="w-1/3 flex items-center gap-2">
+            <div className="md:w-1/3 w-full flex items-center gap-2">
               <button
-                className="bg-[#FFD333] hover:bg-[#ac9132] text-black font-bold py-2 px-3 rounded"
+                className="bg-[#FFD333] hover:bg-[#ac9132] text-black text-sx md:text-sm font-bold py-2 px-3 rounded"
                 onClick={() =>
                   handleBranchUpdate(
                     branch.id,
                     branch.address,
                     branch.city,
+                    branch.district,
                     branch.agencyId
                   )
                 }
@@ -352,30 +432,51 @@ const BranchTab = () => {
               <p className="font-semibold text-lg py-2 px-4">
                 {action ? "Tạo mới chi nhánh" : "Cập nhật chi nhánh"}
               </p>
-              <div className="dropdown inline-block relative w-full">
-                <button className="bg-white shadow-2xl text-gray-700 font-semibold py-2 px-4 rounded-md inline-flex items-center w-full">
-                  <span className="mr-1">
-                    {city?.length > 0 ? city : "Tỉnh thành"}
-                  </span>
-                  <svg
-                    className="fill-current h-4 w-4"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
+              <div className="dropdown relative w-full flex md:flex-row flex-col gap-3">
+                <FormControl fullWidth variant="standard" className={`w-1/2`}>
+                  <InputLabel id="demo-simple-select-standard-label" required>
+                    Tỉnh/Thành
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-standard-label"
+                    id="demo-simple-select-standard"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    label="city"
                   >
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />{" "}
-                  </svg>
-                </button>
-                <ul className="dropdown-menu absolute hidden rounded-lg text-gray-700 pt-1 z-10 shadow-lg w-full scrollbar overflow-y-scroll overscroll-x-none">
-                  {cities.map((city, index) => (
-                    <li
-                      onClick={() => setCity(city)}
-                      key={index}
-                      className="rounded-t bg-white hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap cursor-pointer"
-                    >
-                      {city}
-                    </li>
-                  ))}
-                </ul>
+                    {cityDistrict &&
+                      cityDistrict.map((city, index) => {
+                        return (
+                          <MenuItem key={index} value={city.city}>
+                            {city.city}
+                          </MenuItem>
+                        );
+                      })}
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth variant="standard" className={`w-1/2`}>
+                  <InputLabel id="demo-simple-select-standard-label" required>
+                    Quận/Huyện
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-standard-label"
+                    id="demo-simple-select-standard"
+                    value={district}
+                    onChange={(e) => setDistrict(e.target.value)}
+                    label="district"
+                  >
+                    {city &&
+                      cityDistrict
+                        ?.find((cityMap) => cityMap.city == city)
+                        ?.districts?.map((district, index) => {
+                          return (
+                            <MenuItem key={index} value={district}>
+                              {district}
+                            </MenuItem>
+                          );
+                        })}
+                  </Select>
+                </FormControl>
               </div>
               <div>
                 <label
@@ -389,24 +490,24 @@ const BranchTab = () => {
                   rows={4}
                   onChange={(e) => setAddress(e.target.value)}
                   className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 "
-                  placeholder="Write your thoughts here..."
+                  placeholder="Địa chỉ chi nhánh..."
                   value={address}
                 />
               </div>
               <div className="flex items-center justify-center py-3">
                 {action ? (
                   <Button
-                    onClick={() => handleCreate()}
-                    className="bg-lightBlue-400 px-4 py-3 rounded-md text-white font-semibold"
-                  >
-                    Tạo
-                  </Button>
-                ) : (
-                  <Button
                     onClick={() => handleUpdate()}
                     className="bg-lightBlue-400 px-4 py-3 rounded-md text-white font-semibold"
                   >
                     Cập nhật
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => handleCreate()}
+                    className="bg-lightBlue-400 px-4 py-3 rounded-md text-white font-semibold"
+                  >
+                    Tạo
                   </Button>
                 )}
               </div>
@@ -471,19 +572,19 @@ const StaffTab = () => {
         >
           <FaPlus></FaPlus> Thêm nhân viên
         </Button>
-        <Button
+        {/* <Button
           className="px-3 py-2 rounded-md bg-green-400 mx-5 text-white flex items-center gap-3"
           type={"button"}
           alt={"Mời nhân viên"}
           onClick={() => handleShowInvited(!showModal)}
         >
           <FaCheck></FaCheck> Đã mời
-        </Button>
+        </Button> */}
       </div>
-      <ul className="grid md:grid-cols-4 gap-x-2 m-5">
+      <ul className="grid md:grid-cols-3 sm:grid-cols-2 grid-rows-1 gap-x-2 m-5">
         {staffs?.map((staff) => (
           <li key={staff.id} className="shadow-lg rounded-md px-3 py-2">
-            <div className="w-full flex flex-col md:flex-row max-h-[100vh] overflow-auto scrollbar">
+            <div className="w-full flex flex-col md:flex-row max-h-[100vh] flex-wrap overflow-auto scrollbar">
               <Image
                 loading="lazy"
                 src={
@@ -491,13 +592,14 @@ const StaffTab = () => {
                     ? staff.imageUrl
                     : "/images/staff.png"
                 }
-                alt={staff.agencyRole}
+                alt={staff.agencyRole ?? "title"}
+                unoptimized={staff?.imageUrl?.length > 0}
                 width={0}
                 height={0}
                 sizes="20vw"
                 style={{ width: "20%", height: "auto", margin: "auto" }}
               ></Image>
-              <div className="text-[#484848] rounded-b-xl mt-3 px-5 pt-2 pb-5">
+              <div className="text-[#484848] rounded-b-xl mt-3 p-3">
                 <ul>
                   <li className="text-sm font-semibold mb-2 flex flex-row items-center gap-3">
                     <FaAt className="text-gray-500"></FaAt> {staff.email}
@@ -548,13 +650,37 @@ const StaffTab = () => {
 
 const Invite = (props) => {
   const [customers, setCustomers] = useState();
+  const currentUser = useSelector(currentUserSelector);
+  const [role, setRole] = useState("STAFF");
+  const [branchId, setBranchId] = useState(currentUser?.branchId);
+  const [branch, setBranch] = useState(currentUser?.city);
+  const [branches, setBranches] = useState();
+
+  const getManagerReq = async () => {
+    const res = await vnfixerAPI.getBranches(currentUser.agencyId);
+    if (res.status == 200) {
+      setBranches(() => {
+        return res?.data?.data?.branches;
+      });
+    }
+  };
+
+  useEffect(() => {
+    getManagerReq();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (branches) {
+      setBranchId(branches?.find((item) => item.city == branch)?.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [branch]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleFindCustomer = useCallback(
     debounce(async (email) => {
       if (email?.length > 2) {
         const res = await vnfixerAPI.getCustomer(email);
-        console.log(res);
         if (res.status == 200) {
           const filtered = res?.data?.data.filter(
             (user) => !user?.agencyRole > 0
@@ -577,7 +703,8 @@ const Invite = (props) => {
   const handleInvite = async (id) => {
     const data = {
       userId: id,
-      role: "STAFF",
+      role,
+      branchId,
     };
     try {
       const res = await vnfixerAPI.inviteCustomer(data);
@@ -616,7 +743,7 @@ const Invite = (props) => {
                       key={customer.id}
                       className="shadow-lg rounded-md px-3 py-2"
                     >
-                      <div className="w-full flex flex-col md:flex-row max-h-[100vh] overflow-auto scrollbar">
+                      <div className="w-full flex md:flex-row flex-col justify-center items-center  max-h-[100vh] overflow-auto scrollbar">
                         <div className="w-1/4 flex justify-center items-center">
                           <Image
                             loading="lazy"
@@ -625,7 +752,7 @@ const Invite = (props) => {
                                 ? customer.imageUrl
                                 : "/images/staff.png"
                             }
-                            alt={customer.agencyRole}
+                            alt={customer.agencyRole ?? "title"}
                             width={0}
                             height={0}
                             sizes="20vw"
@@ -636,10 +763,10 @@ const Invite = (props) => {
                             }}
                           ></Image>
                         </div>
-                        <div className="text-[#484848] rounded-b-xl mt-3 px-5 pt-2 pb-5 w-2/4">
+                        <div className="text-[#484848] rounded-b-xl mt-3 px-4 py-3 w-full">
                           <ul>
                             <li className="text-sm font-semibold mb-2 flex flex-row items-center gap-3">
-                              <FaAt className="text-gray-500"></FaAt>{" "}
+                              <FaAt className="text-gray-500"></FaAt>
                               {customer.email}
                             </li>
                             <li className="text-sm font-semibold mb-2 flex flex-row items-center gap-3">
@@ -652,18 +779,53 @@ const Invite = (props) => {
                             </li>
                           </ul>
                         </div>
-                        <div className="w-1/4 flex gap-3 items-center justify-center">
-                          {/* {typeof props.onInvite == "function"  ( */}
-                          {
-                            <button
-                              type="button"
-                              alt="Add"
-                              className="bg-lightBlue-500 text-sm font-semibold rounded-md px-3 py-2 border text-white"
-                              onClick={() => handleInvite(customer.id)}
+                        <div className="w-full flex gap-3 items-center justify-center">
+                          <FormControl variant="standard" className="w-10/12">
+                            <InputLabel id="demo-simple-select-standard-label">
+                              Vai trò
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
+                              value={role}
+                              onChange={(e) => setRole(e.target.value)}
+                              label="role"
                             >
-                              Mời
-                            </button>
-                          }
+                              {agencyRole.map((role, index) => (
+                                <MenuItem key={index} value={role}>
+                                  {role}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          <FormControl variant="standard" className="w-10/12">
+                            <InputLabel id="demo-simple-select-standard-label">
+                              Chi nhánh
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
+                              value={branch}
+                              onChange={(e) => setBranch(e.target.value)}
+                              label="branchId"
+                            >
+                              {branches &&
+                                branches?.map((branch, index) => (
+                                  <MenuItem key={index} value={branch.city}>
+                                    {branch.city}
+                                  </MenuItem>
+                                ))}
+                            </Select>
+                          </FormControl>
+                          <button
+                            type="button"
+                            alt="Add"
+                            className="bg-lightBlue-500 text-sm font-semibold rounded-md px-3 py-2 border text-white"
+                            onClick={() => handleInvite(customer.id)}
+                          >
+                            Mời
+                          </button>
+
                           {/* <button
                               type="button"
                               alt="Remove"

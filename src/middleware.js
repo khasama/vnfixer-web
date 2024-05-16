@@ -30,6 +30,11 @@ export function middleware(request) {
     url.pathname = "/";
     return NextResponse.redirect(url);
   }
+  if (request.url.includes("/payment") && decoded.agencyRole != "MANAGER") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
 
   if (request.url.includes("/manage/staff") && !decoded.agencyRole) {
     const url = request.nextUrl.clone();

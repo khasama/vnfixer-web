@@ -1,11 +1,32 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaPencilAlt } from "react-icons/fa";
 import ReactTimeAgo from "react-time-ago";
 import Button from "./Button";
 import { requestStaffStatus } from "../constants";
+import { FaBuilding, FaUser } from "react-icons/fa6";
+import { getCategories } from "../redux/reducers/category";
+import { unwrapResult } from "@reduxjs/toolkit";
+import { useDispatch, useSelector } from "react-redux";
+import { categoriesSelector } from "../redux/selectors";
 
 const RequestItem = (props) => {
+  const [showModal, setShowModal] = useState(false);
+  const categories = useSelector(categoriesSelector);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const getAllCategory = () => {
+      dispatch(getCategories())
+        .then(unwrapResult)
+        .catch((err) => {
+          alert(err.message);
+        });
+    };
+    getAllCategory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const getStatusColor = (status) => {
     if (status === "CANCEL") {
       return "bg-red-500";
@@ -15,13 +36,150 @@ const RequestItem = (props) => {
       return "bg-yellow-500";
     } else if (status === "DONE") {
       return "bg-green-500";
-    } else if (status === "PICKED") {
+    } else if (status === "PICKED" || status === "PAID") {
       return "bg-violet-500";
     }
   };
+
+  const DetailRequest = () => {
+    return (
+      <div
+        id="select-modal"
+        aria-hidden="true"
+        className={`overflow-y-auto overflow-x-hidden flex fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full ${
+          !showModal && "hidden"
+        }`}
+      >
+        <div className="relative p-4 w-2/3 max-h-full">
+          {/* Modal content */}
+          <div className="relative bg-gray-100 rounded-lg shadow ">
+            {/* Modal header */}
+            <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t ">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Chi tiết yêu cầu
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm h-8 w-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                data-modal-toggle="select-modal"
+              >
+                <svg
+                  className="w-4 h-4 ms-3 rtl:rotate-180 text-gray-500 dark:text-gray-400"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 14 10"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M1 5h12m0 0L9 1m4 4L9 9"
+                  />
+                </svg>
+              </button>
+            </div>
+            {/* Modal body */}
+            <div className="p-3">
+              <span className="font-semibold flex gap-2 items-center pb-2">
+                <FaUser className="text-blue-400" size={15}></FaUser>Khách hàng
+              </span>
+              <div
+                htmlFor="job-1"
+                className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2 w-full p-5 text-gray-900 bg-white border border-gray-200 rounded-lg mb-3"
+              >
+                <div className="block pr-2">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Khách hàng</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.customerName}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Email</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.customerEmail}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Tỉnh/Thành</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.city}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Số điện thoại</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.customerPhone}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small> Dịch vụ</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {categories &&
+                      categories?.filter(
+                        (item) => item.id === props?.category?.id
+                      )[0]?.name}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="pb-3 px-3">
+              <span className="font-semibold flex gap-2 items-center pb-2">
+                <FaBuilding className="text-orange-400" size={15}></FaBuilding>
+                Đại lý
+              </span>
+              <div
+                htmlFor="job-1"
+                className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2 w-full p-5 text-gray-900 bg-white border border-gray-200 rounded-lg mb-3"
+              >
+                <div className="block pr-2">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Người nhận</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.customerEmail?.pickerId}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Chi nhánh</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.branch?.city}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small> Ngày nhận</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.updatedAt}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="px-4 py-2 bg-white shadow-md w-full rounded-md flex flex-col md:flex-row items-center gap-2">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full lg:w-4/12">
+    <div className="px-4 py-2 bg-white shadow-md w-full rounded-md flex flex-col md:flex-row items-center gap-2 flex-wrap">
+      {showModal && <DetailRequest></DetailRequest>}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full lg:w-6/12">
         <div className="">
           <span className="md:text-sm text-xs">Tiêu đề:</span>
           <b className="md:text-sm text-xs"> {props.title}</b>
@@ -62,10 +220,15 @@ const RequestItem = (props) => {
           {props?.branch?.city && props?.branch?.city}
         </div>
       </div>
-      <div className="lg:w-3/12 w-full">
+      <div className="w-full">
         <div className="grid grid-col-1 gap-2">
           <div className="flex items-center gap-5">
-            <div className="flex items-center gap-1 text-blue-700 underline text-sm">
+            <div
+              className="flex items-center gap-1 text-blue-700 underline text-sm cursor-pointer"
+              onClick={() => {
+                setShowModal(true);
+              }}
+            >
               <span>Thông tin chi tiết</span>
               <i
                 aria-label="icon: caret-down"
@@ -139,6 +302,21 @@ const RequestItem = (props) => {
   );
 };
 export const RequestItemStaff = (props) => {
+  const [showModal, setShowModal] = useState(false);
+  const categories = useSelector(categoriesSelector);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const getAllCategory = () => {
+      dispatch(getCategories())
+        .then(unwrapResult)
+        .catch((err) => {
+          alert(err.message);
+        });
+    };
+    getAllCategory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const getStatusColor = (status) => {
     if (status === "CANCEL") {
       return "bg-red-500";
@@ -152,9 +330,144 @@ export const RequestItemStaff = (props) => {
       return "bg-violet-500";
     }
   };
+  const DetailRequest = () => {
+    return (
+      <div
+        id="select-modal"
+        aria-hidden="true"
+        className={`overflow-y-auto overflow-x-hidden flex fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full ${
+          !showModal && "hidden"
+        }`}
+      >
+        <div className="relative p-4 w-2/3 max-h-full">
+          {/* Modal content */}
+          <div className="relative bg-gray-100 rounded-lg shadow ">
+            {/* Modal header */}
+            <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t ">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Chi tiết yêu cầu
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm h-8 w-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                data-modal-toggle="select-modal"
+              >
+                <svg
+                  className="w-4 h-4 ms-3 rtl:rotate-180 text-gray-500 dark:text-gray-400"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 14 10"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M1 5h12m0 0L9 1m4 4L9 9"
+                  />
+                </svg>
+              </button>
+            </div>
+            {/* Modal body */}
+            <div className="p-3">
+              <span className="font-semibold flex gap-2 items-center pb-2">
+                <FaUser className="text-blue-400" size={15}></FaUser>Khách hàng
+              </span>
+              <div
+                htmlFor="job-1"
+                className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2 w-full p-5 text-gray-900 bg-white border border-gray-200 rounded-lg mb-3"
+              >
+                <div className="block pr-2">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Khách hàng</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.customerEmail}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Email</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.customerEmail}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Tỉnh/Thành</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.city}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Số điện thoại</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.customerPhone}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small> Dịch vụ</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {categories &&
+                      categories?.filter(
+                        (item) => item.id === props?.category?.id
+                      )[0]?.name}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="pb-3 px-3">
+              <span className="font-semibold flex gap-2 items-center pb-2">
+                <FaBuilding className="text-orange-400" size={15}></FaBuilding>
+                Đại lý
+              </span>
+              <div
+                htmlFor="job-1"
+                className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2 w-full p-5 text-gray-900 bg-white border border-gray-200 rounded-lg mb-3"
+              >
+                <div className="block pr-2">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Người nhận</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.customerEmail?.pickerId}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Chi nhánh</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.branch?.city}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small> Ngày nhận</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.updatedAt}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
   return (
-    <div className="px-4 py-2 bg-white shadow-md w-full rounded-md flex flex-col md:flex-row items-center gap-2">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full lg:w-4/12">
+    <div className="px-4 py-2 bg-white shadow-md w-full rounded-md flex flex-col md:flex-row items-center gap-2 flex-wrap">
+      {showModal && <DetailRequest></DetailRequest>}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full lg:w-6/12">
         <div className="">
           <span className="md:text-sm text-xs">Tiêu đề:</span>
           <b className="md:text-sm text-xs"> {props.title}</b>
@@ -195,10 +508,15 @@ export const RequestItemStaff = (props) => {
           {props?.branch?.city && props?.branch?.city}
         </div>
       </div>
-      <div className="lg:w-3/12 w-full">
+      <div className="w-full">
         <div className="grid grid-col-1 gap-2">
           <div className="flex items-center gap-5">
-            <div className="flex items-center gap-1 text-blue-700 underline text-sm">
+            <div
+              className="flex items-center gap-1 text-blue-700 underline text-sm cursor-pointer"
+              onClick={() => {
+                setShowModal(true);
+              }}
+            >
               <span>Thông tin chi tiết</span>
               <i
                 aria-label="icon: caret-down"
@@ -247,7 +565,7 @@ export const RequestItemStaff = (props) => {
                     </svg>
                   </button>
                   <ul className="dropdown-menu absolute hidden rounded-lg text-gray-700 pt-1 z-10 shadow-lg w-full scrollbar overflow-y-scroll overscroll-x-none">
-                    {requestStaffStatus.map((item, index) => (
+                    {requestStaffStatus?.map((item, index) => (
                       <li
                         onClick={() => props.onChangeStatus(props.id, item)}
                         key={index}
@@ -270,6 +588,21 @@ export const RequestItemStaff = (props) => {
   );
 };
 export const RequestItemManager = (props) => {
+  const [showModal, setShowModal] = useState(false);
+  const categories = useSelector(categoriesSelector);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const getAllCategory = () => {
+      dispatch(getCategories())
+        .then(unwrapResult)
+        .catch((err) => {
+          alert(err.message);
+        });
+    };
+    getAllCategory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const getStatusColor = (status) => {
     if (status === "CANCEL") {
       return "bg-red-500";
@@ -283,9 +616,145 @@ export const RequestItemManager = (props) => {
       return "bg-violet-500";
     }
   };
+  const DetailRequest = () => {
+    return (
+      <div
+        id="select-modal"
+        aria-hidden="true"
+        className={`overflow-y-auto overflow-x-hidden flex fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full ${
+          !showModal && "hidden"
+        }`}
+      >
+        <div className="relative p-4 w-2/3 max-h-full">
+          {/* Modal content */}
+          <div className="relative bg-gray-100 rounded-lg shadow ">
+            {/* Modal header */}
+            <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t ">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Chi tiết yêu cầu
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm h-8 w-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                data-modal-toggle="select-modal"
+              >
+                <svg
+                  className="w-4 h-4 ms-3 rtl:rotate-180 text-gray-500 dark:text-gray-400"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 14 10"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M1 5h12m0 0L9 1m4 4L9 9"
+                  />
+                </svg>
+              </button>
+            </div>
+            {/* Modal body */}
+            <div className="p-3">
+              <span className="font-semibold flex gap-2 items-center pb-2">
+                <FaUser className="text-blue-400" size={15}></FaUser>Khách hàng
+              </span>
+
+              <div
+                htmlFor="job-1"
+                className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2 w-full p-5 text-gray-900 bg-white border border-gray-200 rounded-lg mb-3"
+              >
+                <div className="block pr-2">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Khách hàng</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.customerEmail}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Email</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.customerEmail}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Tỉnh/Thành</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.city}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Số điện thoại</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.customerPhone}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small> Dịch vụ</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {categories &&
+                      categories?.filter(
+                        (item) => item.id === props?.category?.id
+                      )[0]?.name}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="pb-3 px-3">
+              <span className="font-semibold flex gap-2 items-center pb-2">
+                <FaBuilding className="text-orange-400" size={15}></FaBuilding>
+                Đại lý
+              </span>
+              <div
+                htmlFor="job-1"
+                className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2 w-full p-5 text-gray-900 bg-white border border-gray-200 rounded-lg mb-3"
+              >
+                <div className="block pr-2">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Người nhận</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.customerEmail?.pickerId}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small>Chi nhánh</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.branch?.city}
+                  </div>
+                </div>
+                <div className="block">
+                  <div className="w-full text-gray-500 dark:text-gray-400">
+                    <small> Ngày nhận</small>
+                  </div>
+                  <div className="w-full text-sm font-semibold">
+                    {props?.updatedAt}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
   return (
-    <div className="px-4 py-2 bg-white shadow-md w-full rounded-md flex flex-col md:flex-row items-center gap-2">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full lg:w-4/12">
+    <div className="px-4 py-2 bg-white shadow-md w-full rounded-md flex flex-col md:flex-row items-center gap-2 flex-wrap">
+      {showModal && <DetailRequest></DetailRequest>}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full lg:w-6/12">
         <div className="">
           <span className="md:text-sm text-xs">Tiêu đề:</span>
           <b className="md:text-sm text-xs"> {props.title}</b>
@@ -326,10 +795,13 @@ export const RequestItemManager = (props) => {
           {props?.branch?.city && "Chi Nhánh: " + props?.branch?.city}
         </div>
       </div>
-      <div className="lg:w-3/12 w-full">
+      <div className="w-full">
         <div className="grid grid-col-1 gap-2">
           <div className="flex items-center gap-5">
-            <div className="flex items-center gap-1 text-blue-700 underline text-sm">
+            <div
+              className="flex items-center gap-1 text-blue-700 underline text-sm cursor-pointer"
+              onClick={() => setShowModal(!showModal)}
+            >
               <span>Thông tin chi tiết</span>
               <i
                 aria-label="icon: caret-down"

@@ -3,7 +3,7 @@ import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { categoriesSelector } from "../redux/selectors";
+import { categoriesSelector, currentUserSelector } from "../redux/selectors";
 import { getCategories } from "../redux/reducers/category";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { cities } from "../constants";
@@ -12,6 +12,7 @@ import CardAgency from "../components/CardAgency";
 import Image from "next/image";
 import spinner from "../../../public/images/Spin-1s-200px.svg";
 import FilterSide from "../components/FilterSide";
+import { ImagePlacehoderSkeleton } from "../components/Skeleton";
 
 export const metadata = {
   title: "VNFIXER | Agency",
@@ -20,40 +21,47 @@ export const metadata = {
 const Agencies = () => {
   const dispatch = useDispatch();
   const categories = useSelector(categoriesSelector);
+  const currentUser = useSelector(currentUserSelector);
   const [city, setCity] = useState("");
   const [selectedCheckbox, setSelectedCheckbox] = useState(null);
   const [title, setTitle] = useState("");
   const [agencies, setAgencies] = useState();
 
-  useEffect(() => {
-    const getAllCategory = () => {
-      dispatch(getCategories())
-        .then(unwrapResult)
-        .catch((err) => {
-          alert(err.message);
-        });
-    };
-    getAllCategory();
-    const getAgencies = async () => {
-      try {
-        const response = await vnfixerAPI.getAgencies(6, 1);
-        if (response.status == 200) {
-          setAgencies(response.data.data);
-        }
-      } catch (error) {
-        console.log(error);
+  const getAllCategory = () => {
+    dispatch(getCategories())
+      .then(unwrapResult)
+      .catch((err) => {
+        alert(err.message);
+      });
+  };
+
+  const getAgencies = async () => {
+    try {
+      const response = await vnfixerAPI.getAgencies(6, 1);
+      if (response.status == 200) {
+        setAgencies(response.data.data);
       }
-    };
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getAllCategory();
     getAgencies();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (city.length > 0 || selectedCheckbox > 0) {
+    currentUser && setCity(currentUser?.city);
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (city?.length > 0 || selectedCheckbox > 0) {
       const getAgencies = async () => {
         try {
           const response = await vnfixerAPI.getAgenciesBy(
-            city.length > 0 ? city : "Tiền Giang",
+            city?.length > 0 ? city : "Tiền Giang",
             selectedCheckbox,
             10,
             1
@@ -171,21 +179,21 @@ const Agencies = () => {
         <div className="w-full">
           <div className="result flex flex-row gap-5 items-center">
             <p className="font-bold text-lg text-gray-600">
-              {city.length > 0 || selectedCheckbox > 0
+              {city?.length > 0 || selectedCheckbox > 0
                 ? "Kết quả tìm kiếm"
                 : "Đại lý đề xuất"}
             </p>
 
             {selectedCheckbox > 0 ? (
               <p className="rounded-2xl bg-[#499cfbc2] px-3 py-2 text-white">
-                Thiết bị:{title}
+                Dịch vụ:{` ${title}`}
               </p>
             ) : (
               ""
             )}
-            {city.length > 0 ? (
+            {city?.length > 0 ? (
               <p className="rounded-2xl bg-[#499cfbc2] px-3 py-2 text-white">
-                Thành phố:{city}
+                Thành phố:{` ${city}`}
               </p>
             ) : (
               ""
@@ -193,34 +201,26 @@ const Agencies = () => {
           </div>
           <div>
             <div className="grid grid-cols-2 gap-3">
-              {agencies && agencies.entries ? (
-                agencies?.entries?.map((agency, index) => (
-                  <div
-                    className="rounded-md shadow-lg py-2 hover:shadow-md"
-                    key={index}
-                  >
-                    <CardAgency
-                      title={agency.name}
-                      branches={agency.branches.length}
-                      description={agency.description}
-                      city={agency.category.name}
-                      star={5}
-                      imgUrl={agency.logo}
-                      id={agency.id}
-                    />
-                  </div>
-                ))
-              ) : (
-                <li className="w-full flex justify-center items-center">
-                  <Image
-                    width={0}
-                    height={0}
-                    priority
-                    src={spinner}
-                    alt="Follow us on Twitter"
-                  />
-                </li>
-              )}
+              {agencies && agencies.entries
+                ? agencies?.entries?.map((agency, index) => (
+                    <div
+                      className="rounded-md shadow-lg py-2 hover:shadow-md"
+                      key={index}
+                    >
+                      <CardAgency
+                        title={agency.name}
+                        branches={agency.branches.length}
+                        description={agency.description}
+                        city={agency.category.name}
+                        star={5}
+                        imgUrl={agency.logo}
+                        id={agency.id}
+                      />
+                    </div>
+                  ))
+                : Array.from({ length: 6 }).map((_, i) => (
+                    <ImagePlacehoderSkeleton key={i}></ImagePlacehoderSkeleton>
+                  ))}
             </div>
           </div>
         </div>

@@ -121,7 +121,6 @@ export default function Auth() {
   };
 
   const handleEditProfile = () => {
-    setUserDisable(true);
     if (email.length > 2 && fullName.length > 2) {
       const user = {
         fullName: fullName,
@@ -132,6 +131,7 @@ export default function Auth() {
       };
       dispatch(updateUser(user))
         .then({ unwrapResult })
+        .then(setUserDisable(true))
         .catch((err) => {
           console.log(err);
         });
@@ -151,7 +151,6 @@ export default function Auth() {
       };
       try {
         const res = await vnfixerAPI.updateAgency(currentUser.agencyId, data);
-        console.log(res);
         if (res.status == 200) {
           toast.success("Đã cập nhật thông tin của bạn");
           getAgencyOwner();
@@ -184,6 +183,7 @@ export default function Auth() {
                     width={150}
                     height={0}
                     src={agencyAvatar}
+                    unoptimized={true}
                     alt="Generic placeholder"
                     className="img-fluid img-thumbnail mt-4 mb-2 rounded-xl"
                   />
@@ -280,7 +280,7 @@ export default function Auth() {
                                   onClick={() =>
                                     setCategoryId(() => {
                                       setCategoryName(category.name);
-                                      return category.categoryId;
+                                      return category.id;
                                     })
                                   }
                                   key={index}

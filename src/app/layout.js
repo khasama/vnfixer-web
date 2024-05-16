@@ -1,3 +1,4 @@
+import Chat from "./components/ChatForm";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import "./globals.css";
@@ -16,6 +17,7 @@ export default function RootLayout({ children }) {
           <div className="flex min-h-screen flex-col bg-[#ffff]">
             <Navbar />
             {children}
+            <Chat></Chat>
           </div>
           <Footer />
         </Providers>

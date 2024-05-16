@@ -29,18 +29,18 @@ export const metadata = {
 
 const Manager = () => {
   const router = useRouter();
-  const [login, setLogin] = useState();
   const [user, setUser] = useState();
   const isLoggedIn = useSelector(isLoggedInSelector);
   const currentUser = useSelector(currentUserSelector);
   const [open, setOpen] = useState(0);
   const [alwaysOpen, setAlwaysOpen] = useState(true);
   const [inf, setInf] = useState([]);
+
   const getMyRequest = async () => {
     try {
       const takeRes = await vnfixerAPI.getTakeRequest();
       if (takeRes.status == 200) {
-        setInf(takeRes.data.data[0].branch);
+        setInf(takeRes?.data?.data[0]?.branch);
       }
     } catch (error) {
       console.log(error);
@@ -51,7 +51,6 @@ const Manager = () => {
   }, []);
 
   useEffect(() => {
-    setLogin(isLoggedIn);
     setUser(currentUser);
   }, [isLoggedIn, currentUser]);
 
@@ -69,7 +68,7 @@ const Manager = () => {
     <div className="w-full flex flex-row gap-5 max-h-[100vh] overflow-auto scrollbar">
       <Toaster position="top-center" />
       <div className="flex flex-col my-3 gap-3">
-        <div className="bg-lightBlue-50 p-5 h-[90vh] rounded-lg shadow-lg w-[20em]">
+        <div className="bg-gray-50 p-5 min-h-[50vh] rounded-lg shadow-lg w-[20em]">
           <Image
             loading="lazy"
             src={
@@ -78,6 +77,7 @@ const Manager = () => {
                 : "/images/logo.png"
             }
             alt={"Agency logo"}
+            unoptimized={inf?.agency?.logo?.length > 0}
             width={0}
             height={0}
             sizes="20vw"
@@ -87,14 +87,14 @@ const Manager = () => {
             <li className="flex flex-row gap-4 items-start">
               <FaBuilding className="text-[#4694EF]"></FaBuilding>
 
-              <p>{inf?.agency?.name}</p>
+              <p>{user?.agencyName}</p>
             </li>
             <li className="flex flex-row gap-4 items-center">
               <FaLocationDot className="text-[#4694EF]"></FaLocationDot>
-              <p>{inf?.city}</p>
+              <p>{user?.city}</p>
             </li>
             <li className="flex flex-row gap-4 items-center">
-              <p>{inf?.address}</p>
+              <p>{user?.branchAddress}</p>
             </li>
           </ul>
         </div>
@@ -130,7 +130,9 @@ const Manager = () => {
             <AccordionHeader onClick={() => handleOpen(2)}>
               ĐÃ HOÀN THÀNH
             </AccordionHeader>
-            <AccordionBody>Coming soon!</AccordionBody>
+            <AccordionBody>
+              <Done></Done>
+            </AccordionBody>
           </Accordion>
           <Accordion
             className="border border-red-300 p-3 rounded-md shadow-md"
@@ -139,7 +141,9 @@ const Manager = () => {
             <AccordionHeader onClick={() => handleOpen(3)}>
               ĐÃ HUỶ
             </AccordionHeader>
-            <AccordionBody>Coming soon!</AccordionBody>
+            <AccordionBody>
+              <Cancel></Cancel>
+            </AccordionBody>
           </Accordion>
         </div>
       </div>
@@ -175,8 +179,12 @@ const Picked = () => {
     }
     if (res == null) {
       const takedRequest = await vnfixerAPI.pickRequestStaff(id);
-      getMyRequest();
-      toast.success("Đã nhận yêu cầu");
+      if (takedRequest.status == 200) {
+        getMyRequest();
+        toast.success("Đã nhận yêu cầu");
+      } else {
+        toast.error("Đã xảy ra lỗi, vui lòng thử lại!");
+      }
     } else {
       toast.error("Bạn phải hoàn thành yêu cầu đã nhận trước");
     }
@@ -192,22 +200,28 @@ const Picked = () => {
         <FaRotateRight className="text-white"></FaRotateRight>
       </button>
       <div className="w-full flex flex-col gap-3 max-h-[100vh] overflow-auto scrollbar">
-        {takeReq?.map((request) => (
-          <RequestItemStaff
-            key={request.id}
-            id={request.id}
-            title={request.title}
-            description={request.description}
-            city={request.city}
-            expectDate={request.expectDate}
-            createdAt={request.createdAt}
-            status={request.status}
-            customerName={request.customerName}
-            category={request.category}
-            branch={request.branch}
-            onPick={handlePickRequest}
-          ></RequestItemStaff>
-        ))}
+        {takeReq?.length !== 0 ? (
+          takeReq?.map((request) => (
+            <RequestItemStaff
+              key={request.id}
+              id={request.id}
+              title={request.description}
+              description={request.description}
+              city={request.city}
+              expectDate={request.expectDate}
+              createdAt={request.createdAt}
+              status={request.status}
+              customerName={request.customerName}
+              customerEmail={request.customerEmail}
+              customerPhone={request.customerPhone}
+              category={request.category}
+              branch={request.branch}
+              onPick={handlePickRequest}
+            ></RequestItemStaff>
+          ))
+        ) : (
+          <p>Bạn có chưa yêu cầu nào</p>
+        )}
       </div>
     </>
   );
@@ -252,13 +266,15 @@ const Taken = () => {
           <RequestItemStaff
             key={takenReq.id}
             id={takenReq.id}
-            title={takenReq.title}
+            title={takenReq.description}
             description={takenReq.description}
             city={takenReq.city}
             expectDate={takenReq.expectDate}
             createdAt={takenReq.createdAt}
             status={takenReq.status}
             customerName={takenReq.customerName}
+            customerEmail={takenReq.customerEmail}
+            customerPhone={takenReq.customerPhone}
             category={takenReq.category}
             branch={takenReq.branch}
             onChangeStatus={handleChangeStatus}
@@ -272,12 +288,18 @@ const Taken = () => {
 };
 const Done = () => {
   const [doneReq, setDoneReq] = useState();
+  const currentUser = useSelector(currentUserSelector);
 
   const getMyRequest = async () => {
     try {
-      const doneRes = await vnfixerAPI.getDoneRequest();
+      const data = {
+        staffId: currentUser?.id,
+        branchId: currentUser?.branchId,
+        status: "DONE",
+      };
+      const doneRes = await vnfixerAPI.getActionRequest(data);
       if (doneRes.status == 200) {
-        setDoneReq(doneRes.data.data);
+        setDoneReq(doneRes.data?.data?.entries);
       }
     } catch (error) {
       console.log(error);
@@ -302,13 +324,15 @@ const Done = () => {
             <RequestItemStaff
               key={request.id}
               id={request.id}
-              title={request.title}
+              title={request.description}
               description={request.description}
               city={request.city}
               expectDate={request.expectDate}
               createdAt={request.createdAt}
               status={request.status}
               customerName={request.customerName}
+              customerEmail={request.customerEmail}
+              customerPhone={request.customerPhone}
               category={request.category}
               branch={request.branch}
             ></RequestItemStaff>
@@ -322,12 +346,18 @@ const Done = () => {
 };
 const Cancel = () => {
   const [cancelReq, setCancelReq] = useState();
+  const currentUser = useSelector(currentUserSelector);
 
   const getMyRequest = async () => {
     try {
-      const cancelRes = await vnfixerAPI.getcancelRequest();
+      const data = {
+        staffId: currentUser?.id,
+        branchId: currentUser?.branchId,
+        status: "CANCEL",
+      };
+      const cancelRes = await vnfixerAPI.getActionRequest(data);
       if (cancelRes.status == 200) {
-        setCancelReq(cancelRes.data.data);
+        setCancelReq(cancelRes.data?.data?.entries);
       }
     } catch (error) {
       console.log(error);
@@ -352,13 +382,15 @@ const Cancel = () => {
             <RequestItemStaff
               key={request.id}
               id={request.id}
-              title={request.title}
+              title={request.description}
               description={request.description}
               city={request.city}
               expectDate={request.expectDate}
               createdAt={request.createdAt}
               status={request.status}
               customerName={request.customerName}
+              customerEmail={request.customerEmail}
+              customerPhone={request.customerPhone}
               category={request.category}
               branch={request.branch}
             ></RequestItemStaff>

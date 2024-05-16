@@ -19,9 +19,10 @@ const CardAgency = ({
       <Image
         className="w-2/5 h-auto m-auto pl-2"
         src={imgUrl ? imgUrl : require("../../../public/images/logo.png")}
-        alt={title}
+        alt={title ?? "title"}
         width={0}
         height={0}
+        unoptimized={imgUrl?.length > 0}
         sizes="100vw"
         loading="lazy"
       ></Image>

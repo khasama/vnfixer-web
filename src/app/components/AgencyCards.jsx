@@ -8,6 +8,7 @@ import { isLoggedInSelector } from "../redux/selectors";
 import vnfixerAPI from "../api/vnfixerApi";
 import Image from "next/image";
 import spinner from "../../../public/images/Spin-1s-200px.svg";
+import { ImagePlacehoderSkeleton } from "./Skeleton";
 
 const cardsData = [
   {
@@ -67,7 +68,7 @@ const AgencyCards = () => {
   useEffect(() => {
     const getAgencies = async () => {
       try {
-        const response = await vnfixerAPI.getAgencies(4, 1);
+        const response = await vnfixerAPI.getAgencies(6, 1);
         if (response.status == 200) {
           setAgencies(response.data.data);
         }
@@ -86,32 +87,30 @@ const AgencyCards = () => {
             <Title title="Đại lý nổi bật"></Title>
           </div>
           <ul ref={ref} className="grid md:grid-cols-2 gap-y-5 gap-x-2 m-10">
-            {agencies && agencies.entries ? (
-              agencies?.entries?.map((agency, index) => (
-                <motion.li
-                  className="rounded-md shadow-lg py-2 hover:shadow-md w-full lg:w-5/6 mx-auto"
-                  key={index}
-                  variants={cardVariants}
-                  initial="initial"
-                  animate={isInView ? "animate" : "initial"}
-                  transition={{ duration: 0.3, delay: index * 0.2 }}
-                >
-                  <CardAgency
-                    title={agency.name}
-                    branches={agency.branches.length}
-                    description={agency.description}
-                    city={agency.category.name}
-                    star={5}
-                    imgUrl={agency.logo}
-                    id={agency.id}
-                  />
-                </motion.li>
-              ))
-            ) : (
-              <div className="w-full flex justify-center items-center">
-                <Image priority src={spinner} alt="Follow us on Twitter" />
-              </div>
-            )}
+            {agencies && agencies.entries
+              ? agencies?.entries?.map((agency, index) => (
+                  <motion.li
+                    className="rounded-md shadow-lg py-2 hover:shadow-md w-full lg:w-5/6 mx-auto"
+                    key={index}
+                    variants={cardVariants}
+                    initial="initial"
+                    animate={isInView ? "animate" : "initial"}
+                    transition={{ duration: 0.3, delay: index * 0.2 }}
+                  >
+                    <CardAgency
+                      title={agency.name}
+                      branches={agency.branches.length}
+                      description={agency.description}
+                      city={agency.category.name}
+                      star={5}
+                      imgUrl={agency.logo}
+                      id={agency.id}
+                    />
+                  </motion.li>
+                ))
+              : Array.from({ length: 4 }).map((_, i) => (
+                  <ImagePlacehoderSkeleton key={i}></ImagePlacehoderSkeleton>
+                ))}
           </ul>
         </>
       )}

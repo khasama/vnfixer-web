@@ -11,7 +11,8 @@ const CardCategory = ({ imgUrl, title, description, gitUrl }) => {
       <Image
         loading="lazy"
         src={imgUrl}
-        alt={title}
+        unoptimized={imgUrl?.length > 0}
+        alt={title ?? "title"}
         width={0}
         height={0}
         sizes="100vw"
